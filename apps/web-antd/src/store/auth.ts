@@ -1,6 +1,11 @@
 import type { Recordable } from '@vben/types';
 
-import type { CaptchaResult, LoginParams, MyUserInfo, SmsLoginParams, } from '#/api';
+import type {
+  CaptchaResult,
+  LoginParams,
+  MyUserInfo,
+  SmsLoginParams,
+} from '#/api';
 
 import { ref } from 'vue';
 import { useRouter } from 'vue-router';
