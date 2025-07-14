@@ -1,6 +1,6 @@
 import type { Recordable } from '@vben/types';
 
-import type { CaptchaResult, LoginParams, MyUserInfo } from '#/api';
+import type { CaptchaResult, LoginParams, MyUserInfo, SmsLoginParams, } from '#/api';
 
 import { ref } from 'vue';
 import { useRouter } from 'vue-router';
@@ -18,6 +18,7 @@ import {
   getUserInfoApi,
   loginApi,
   logoutApi,
+  smsLoginApi,
 } from '#/api';
 import { $t } from '#/locales';
 import { useWebSocketStore } from '#/store';
@@ -50,9 +51,17 @@ export const useAuthStore = defineStore('auth', () => {
     let userInfo: MyUserInfo | null = null;
     try {
       loginLoading.value = true;
-      const { access_token, session_uuid } = await loginApi(
-        params as LoginParams,
-      );
+      // 根据参数判断是短信登录还是账号密码登录
+      let loginResult;
+      // eslint-disable-next-line unicorn/prefer-ternary
+      if (params.phone && params.code) {
+        // 短信登录
+        loginResult = await smsLoginApi(params as SmsLoginParams);
+      } else {
+        // 常规登录
+        loginResult = await loginApi(params as LoginParams);
+      }
+      const { access_token, session_uuid } = loginResult;
 
       // 如果成功获取到 accessToken
       if (access_token) {
