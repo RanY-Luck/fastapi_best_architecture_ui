@@ -11,6 +11,15 @@ export interface LoginParams {
   captcha: string;
 }
 
+export interface MobileLoginParams {
+  phone: string;
+}
+
+export interface SmsLoginParams {
+  phone: string;
+  code: string;
+}
+
 export interface LoginResult {
   access_token: string;
   session_uuid: string;
@@ -57,4 +66,18 @@ export async function logoutApi() {
  */
 export async function getAccessCodesApi() {
   return requestClient.get<string[]>('/api/v1/auth/codes');
+}
+
+/**
+ * 发送短信验证码
+ */
+export async function sendSmsCodeApi(phone: string) {
+  return requestClient.post('/api/v1/sms/send_login_code', { phone });
+}
+
+/**
+ * 短信验证码登录
+ */
+export async function smsLoginApi(data: SmsLoginParams) {
+  return requestClient.post<LoginResult>('/api/v1/sms/login/sms', data);
 }
