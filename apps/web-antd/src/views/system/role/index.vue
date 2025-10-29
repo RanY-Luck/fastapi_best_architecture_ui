@@ -51,7 +51,10 @@ const gridOptions: VxeTableGridOptions<SysRoleResult> = {
   toolbarConfig: {
     export: true,
     print: true,
-    refresh: { code: 'query' },
+    refresh: true,
+    refreshOptions: {
+      code: 'query',
+    },
     custom: true,
     zoom: true,
   },
@@ -69,10 +72,10 @@ const gridOptions: VxeTableGridOptions<SysRoleResult> = {
   },
 };
 
-const [Grid, girdApi] = useVbenVxeGrid({ formOptions, gridOptions });
+const [Grid, gridApi] = useVbenVxeGrid({ formOptions, gridOptions });
 
 function onRefresh() {
-  girdApi.query();
+  gridApi.query();
 }
 
 function onActionClick({ code, row }: OnActionClickParams<SysRoleResult>) {
