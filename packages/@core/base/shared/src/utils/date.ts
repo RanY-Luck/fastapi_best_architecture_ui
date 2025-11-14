@@ -4,7 +4,7 @@ export function formatDate(time: number | string, format = 'YYYY-MM-DD') {
   try {
     const date = dayjs(time);
     if (!date.isValid()) {
-      throw new Error('Invalid date');
+      throw new Error('未知日期');
     }
     return date.format(format);
   } catch (error) {

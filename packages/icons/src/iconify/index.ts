@@ -33,3 +33,8 @@ export const BxsFile = createIconifyIcon('bxs:file');
 export const FlatColorIconsFolder = createIconifyIcon(
   'flat-color-icons:folder',
 );
+
+export const FxemojiBarChart = createIconifyIcon('fxemoji:barchart');
+
+export const MdiFile = createIconifyIcon('mdi:file');
+export const MdiPlay = createIconifyIcon('mdi:play');
