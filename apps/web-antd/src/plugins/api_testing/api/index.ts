@@ -6,13 +6,13 @@
 export * from './project';
 
 // 测试用例管理
-export * from './test-case';
+export * from './testcase';
 
 // 测试报告管理
-export * from './test-report';
+export * from './testreport';
 
 // 测试步骤管理
-export * from './test-step';
+export * from './teststep';
 
 // 类型定义
 export * from './types';

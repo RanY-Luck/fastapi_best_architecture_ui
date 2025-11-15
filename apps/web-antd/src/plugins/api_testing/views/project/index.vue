@@ -54,18 +54,27 @@ const gridOptions: VxeTableGridOptions<ApiProject> = {
   toolbarConfig: {
     export: true,
     print: true,
-    refresh: { code: 'query' },
     custom: true,
-    zoom: true,
   },
   columns: useColumns(onActionClick),
   proxyConfig: {
     ajax: {
       query: async ({ page }, formValues) => {
+        // 过滤掉空字符串和 null
+        // eslint-disable-next-line unicorn/no-array-reduce
+        const filteredParams = Object.entries(formValues).reduce(
+          (acc, [key, value]) => {
+            if (value !== '' && value !== null && value !== undefined) {
+              acc[key] = value;
+            }
+            return acc;
+          },
+          {},
+        );
         return await getApiProjectListApi({
           page: page.currentPage,
           size: page.pageSize,
-          ...formValues,
+          ...filteredParams,
         });
       },
     },

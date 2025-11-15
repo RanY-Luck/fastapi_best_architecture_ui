@@ -24,7 +24,7 @@ import {
   executeTestCaseApi,
   getTestCaseListApi,
   updateTestCaseApi,
-} from '#/plugins/api_testing/api/test-case';
+} from '#/plugins/api_testing/api/testcase';
 
 import { querySchema, testCaseFormSchema, useColumns } from './data';
 
@@ -36,7 +36,8 @@ const router = useRouter();
 
 // 表单配置
 const formOptions: VbenFormProps = {
-  collapsed: true,
+  // 默认展开
+  collapsed: false,
   showCollapseButton: true,
   submitButtonOptions: {
     content: $t('common.form.query'),
@@ -66,10 +67,21 @@ const gridOptions: VxeTableGridOptions<TestCase> = {
   proxyConfig: {
     ajax: {
       query: async ({ page }, formValues) => {
+        // 过滤掉空字符串和 null
+        // eslint-disable-next-line unicorn/no-array-reduce
+        const filteredParams = Object.entries(formValues).reduce(
+          (acc, [key, value]) => {
+            if (value !== '' && value !== null && value !== undefined) {
+              acc[key] = value;
+            }
+            return acc;
+          },
+          {},
+        );
         return await getTestCaseListApi({
           page: page.currentPage,
           size: page.pageSize,
-          ...formValues,
+          ...filteredParams,
         });
       },
     },
@@ -87,18 +99,30 @@ const [TestCaseForm, testCaseFormApi] = useVbenForm({
 const [CreateModal, createModalApi] = useVbenModal({
   title: '创建测试用例',
   onConfirm: async () => {
-    const values = await testCaseFormApi.validate();
-    if (values) {
-      await createTestCaseApi(values);
-      message.success('测试用例创建成功');
-      onRefresh();
-      return true;
+    try {
+      const values = await testCaseFormApi.getValues(true);
+      if (values && Object.keys(values).length > 0) {
+        // 额外检查非空
+        await createTestCaseApi(values);
+        message.success('测试用例创建成功');
+        onRefresh();
+        createModalApi.close(); // 显式关闭
+        return true;
+      } else {
+        message.warning('表单数据为空，请填写必填项');
+        return false;
+      }
+    } catch (error) {
+      console.error('表单验证失败:', error);
+      message.error('表单验证失败，请检查必填项');
+      return false;
     }
-    return false;
   },
   onOpenChange: (isOpen) => {
-    if (!isOpen) {
-      testCaseFormApi.resetForm();
+    if (isOpen) {
+      testCaseFormApi.resetForm(); // 打开时重置为空（创建模式）
+    } else {
+      testCaseFormApi.resetForm(); // 关闭时也重置（可选，防残留）
     }
   },
 });
@@ -108,17 +132,35 @@ const editingCaseId = ref<null | number>(null);
 const [EditModal, editModalApi] = useVbenModal({
   title: '编辑测试用例',
   onConfirm: async () => {
-    const values = await testCaseFormApi.validate();
-    if (values && editingCaseId.value) {
+    try {
+      if (!editingCaseId.value) {
+        message.error('编辑 ID 无效');
+        return false;
+      }
+      // 先验证并获取值
+      const values = await testCaseFormApi.getValues(true);
       await updateTestCaseApi(editingCaseId.value, values);
       message.success('测试用例更新成功');
       onRefresh();
+      editModalApi.close();
       return true;
+    } catch (error) {
+      console.error('表单验证失败:', error);
+      message.error('表单验证失败，请检查必填项');
+      return false;
     }
-    return false;
   },
-  onOpenChange: (isOpen) => {
-    if (!isOpen) {
+  onOpenChange: async (isOpen, { record }) => {
+    // 可选：用 record 传入数据
+    if (isOpen) {
+      if (editingCaseId.value) {
+        // 编辑模式
+        testCaseFormApi.resetForm(); // 先重置
+        testCaseFormApi.setValues(record || {}); // setValues 支持直接传入 record（如果有）
+      } else {
+        testCaseFormApi.resetForm(); // 如果有查看模式等
+      }
+    } else {
       testCaseFormApi.resetForm();
       editingCaseId.value = null;
     }

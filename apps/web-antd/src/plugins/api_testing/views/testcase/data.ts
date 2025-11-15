@@ -2,6 +2,8 @@ import type { VbenFormSchema } from '#/adapter/form';
 import type { OnActionClickFn, VxeGridProps } from '#/adapter/vxe-table';
 import type { TestCase } from '#/plugins/api_testing/api';
 
+import { $t } from '@vben/locales';
+
 import { getAllEnabledApiProjectsApi } from '#/plugins/api_testing/api';
 
 // 查询表单配置
@@ -20,9 +22,16 @@ export const querySchema: VbenFormSchema[] = [
     label: '所属项目',
     componentProps: {
       placeholder: '请选择项目',
-      api: getAllEnabledApiProjectsApi,
+      api: async () => {
+        const data = (await getAllEnabledApiProjectsApi()) as any;
+        if (data && 'items' in data && Array.isArray(data.items)) {
+          return data.items;
+        }
+        return Array.isArray(data) ? data : [];
+      },
       labelField: 'name',
       valueField: 'id',
+      immediate: true,
     },
   },
   {
@@ -34,12 +43,11 @@ export const querySchema: VbenFormSchema[] = [
       options: [
         { label: '全部', value: '' },
         { label: '启用', value: 1 },
-        { label: '禁用', value: 0 },
+        { label: '停用', value: 0 },
       ],
     },
   },
 ];
-
 // 测试用例表单配置
 export const testCaseFormSchema: VbenFormSchema[] = [
   {
@@ -58,9 +66,17 @@ export const testCaseFormSchema: VbenFormSchema[] = [
     rules: 'required',
     componentProps: {
       placeholder: '请选择项目',
-      api: getAllEnabledApiProjectsApi,
+      api: async () => {
+        const data = (await getAllEnabledApiProjectsApi()) as any;
+        // 处理分页数据
+        if (data && 'items' in data && Array.isArray(data.items)) {
+          return data.items;
+        }
+        return Array.isArray(data) ? data : [];
+      },
       labelField: 'name',
       valueField: 'id',
+      immediate: true,
     },
   },
   {
@@ -117,9 +133,10 @@ export function useColumns(
       width: 50,
     },
     {
-      title: 'ID',
-      field: 'id',
-      width: 80,
+      field: 'seq',
+      title: $t('common.table.id'),
+      type: 'seq',
+      width: 50,
     },
     {
       title: '用例名称',
@@ -128,8 +145,8 @@ export function useColumns(
     },
     {
       title: '所属项目',
-      field: 'project.name',
-      minWidth: 150,
+      field: 'project_id',
+      width: 150,
     },
     {
       title: '描述',
@@ -143,69 +160,62 @@ export function useColumns(
       width: 100,
       cellRender: {
         name: 'CellTag',
-        props: ({ row }: { row: any }) => {
-          const status = row.status;
-          return {
-            color: status === 1 ? 'success' : 'error',
-            text: status === 1 ? '启用' : '禁用',
-          };
-        },
       },
     },
     {
-      title: '创建时间',
-      field: 'create_time',
+      title: $t('common.table.created_time'),
+      field: 'created_time',
       width: 180,
       formatter: ({ cellValue }) => {
         return cellValue ? new Date(cellValue).toLocaleString() : '';
       },
     },
     {
-      title: '更新时间',
-      field: 'update_time',
+      title: $t('common.table.updated_time'),
+      field: 'updated_time',
       width: 180,
       formatter: ({ cellValue }) => {
         return cellValue ? new Date(cellValue).toLocaleString() : '';
       },
     },
     {
-      title: '操作',
-      field: 'action',
-      width: 280,
+      title: $t('common.table.operation'),
+      field: 'operation',
+      width: 400,
       fixed: 'right',
       cellRender: {
-        name: 'CellActions',
-        props: {
-          onActionClick,
-          actions: [
-            {
-              code: 'steps',
-              text: '管理步骤',
-              icon: 'lucide:list',
-            },
-            {
-              code: 'execute',
-              text: '执行测试',
-              icon: 'lucide:play',
-              color: 'success',
-            },
-            {
-              code: 'edit',
-              text: '编辑',
-              icon: 'lucide:edit',
-            },
-            {
-              code: 'delete',
-              text: '删除',
-              icon: 'lucide:trash-2',
-              color: 'error',
-              confirm: {
-                title: '确认删除',
-                content: '确定要删除这个测试用例吗？删除后不可恢复。',
-              },
-            },
-          ],
+        attrs: {
+          onClick: onActionClick,
         },
+        name: 'CellOperation',
+        options: [
+          {
+            code: 'steps',
+            text: '管理步骤',
+            icon: 'lucide:list',
+          },
+          {
+            code: 'execute',
+            text: '执行测试',
+            icon: 'lucide:play',
+            color: 'success',
+          },
+          {
+            code: 'edit',
+            text: '编辑',
+            icon: 'lucide:edit',
+          },
+          {
+            code: 'delete',
+            text: '删除',
+            icon: 'lucide:trash-2',
+            color: 'error',
+            confirm: {
+              title: '确认删除',
+              content: '确定要删除这个测试用例吗？删除后不可恢复。',
+            },
+          },
+        ],
       },
     },
   ];

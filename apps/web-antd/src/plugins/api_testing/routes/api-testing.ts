@@ -36,9 +36,9 @@ const routes: RouteRecordRaw[] = [
       },
       {
         name: 'ApiTestingTestCase',
-        path: '/api-testing/test-case',
+        path: '/api-testing/testcase',
         component: () =>
-          import('#/plugins/api_testing/views/test-case/index.vue'),
+          import('#/plugins/api_testing/views/testcase/index.vue'),
         meta: {
           icon: 'lucide:file-text',
           title: '测试用例',
@@ -46,9 +46,9 @@ const routes: RouteRecordRaw[] = [
       },
       {
         name: 'ApiTestingTestStep',
-        path: '/api-testing/test-step',
+        path: '/api-testing/teststep',
         component: () =>
-          import('#/plugins/api_testing/views/test-step/index.vue'),
+          import('#/plugins/api_testing/views/teststep/index.vue'),
         meta: {
           icon: 'lucide:list',
           title: '测试步骤',
@@ -56,9 +56,9 @@ const routes: RouteRecordRaw[] = [
       },
       {
         name: 'ApiTestingTestReport',
-        path: '/api-testing/test-report',
+        path: '/api-testing/testreport',
         component: () =>
-          import('#/plugins/api_testing/views/test-report/index.vue'),
+          import('#/plugins/api_testing/views/testreport/index.vue'),
         meta: {
           icon: 'lucide:file-bar-chart',
           title: '测试报告',
@@ -66,9 +66,9 @@ const routes: RouteRecordRaw[] = [
       },
       {
         name: 'ApiTestingTestReportDetail',
-        path: '/api-testing/test-report/:id',
+        path: '/api-testing/testreport/:id',
         component: () =>
-          import('#/plugins/api_testing/views/test-report/detail.vue'),
+          import('#/plugins/api_testing/views/testreport/detail.vue'),
         meta: {
           hideInMenu: true,
           title: '报告详情',

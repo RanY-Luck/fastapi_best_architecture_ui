@@ -24,8 +24,8 @@ import {
 } from 'ant-design-vue';
 
 import { getApiProjectListApi } from '#/plugins/api_testing/api/project';
-import { getTestCaseListApi } from '#/plugins/api_testing/api/test-case';
-import { getTestReportListApi } from '#/plugins/api_testing/api/test-report';
+import { getTestCaseListApi } from '#/plugins/api_testing/api/testcase';
+import { getTestReportListApi } from '#/plugins/api_testing/api/testreport';
 
 defineOptions({
   name: 'ApiTestingDashboard',
@@ -106,17 +106,25 @@ async function fetchRecentData() {
     const projectsResult = await getApiProjectListApi();
 
     recentProjects.value = projectsResult.items
-      .filter((item) => item.updated_time || item.created_time) // 过滤掉无效时间
+      .filter((item) => item.created_time) // 过滤掉没有创建时间的
       .sort((a, b) => {
-        const timeA = new Date(a.updated_time || a.created_time).getTime();
-        const timeB = new Date(b.updated_time || b.created_time).getTime();
-        return timeB - timeA; // 降序:最新的在前
+        const timeA = new Date(a.created_time).getTime();
+        const timeB = new Date(b.created_time).getTime();
+        return timeB - timeA; // 降序:最新创建的在前
       })
       .slice(0, 1);
 
     // 获取最近的测试用例
     const casesResult = await getTestCaseListApi();
-    recentTestCases.value = casesResult.items;
+
+    recentTestCases.value = casesResult.items
+      .filter((item) => item.created_time) // 过滤掉没有创建时间的
+      .sort((a, b) => {
+        const timeA = new Date(a.created_time).getTime();
+        const timeB = new Date(b.created_time).getTime();
+        return timeB - timeA; // 降序:最新创建的在前
+      })
+      .slice(0, 1);
 
     // 获取最近的测试报告
     const reportsResult = await getTestReportListApi();
@@ -130,7 +138,7 @@ async function fetchRecentData() {
 function handleQuickAction(action: string) {
   switch (action) {
     case 'create-case': {
-      router.push('/api_testing/test-case');
+      router.push('/api_testing/testcase');
       break;
     }
     case 'create-project': {
@@ -138,7 +146,7 @@ function handleQuickAction(action: string) {
       break;
     }
     case 'view-reports': {
-      router.push('/api_testing/test-report');
+      router.push('/api_testing/testreport');
       break;
     }
   }
@@ -155,7 +163,7 @@ function goToDetail(type: string, id: number) {
       break;
     }
     case 'project': {
-      router.push('/api-testing/project');
+      router.push('/api_testing/project');
       break;
     }
     case 'report': {
