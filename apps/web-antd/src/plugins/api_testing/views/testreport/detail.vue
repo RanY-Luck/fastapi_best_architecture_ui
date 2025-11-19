@@ -1,11 +1,11 @@
 <script lang="ts" setup>
-import type { TestReport } from '#/api/api-testing';
+import type { TestReport } from '#/plugins/api_testing/api/types';
 
 import { computed, onMounted, ref } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 
 import { Page, VbenButton } from '@vben/common-ui';
-import { ArrowLeft, Download, RefreshCw } from '@vben/icons';
+import { ArrowLeft } from '@vben/icons';
 
 import {
   Card,
@@ -19,7 +19,10 @@ import {
   Timeline,
 } from 'ant-design-vue';
 
-import { exportTestReportApi, getTestReportDetailApi } from '#/api/api-testing';
+import {
+  exportTestReportApi,
+  getTestReportDetailApi,
+} from '#/plugins/api_testing/api/testreport';
 
 defineOptions({
   name: 'ApiTestingTestReportDetail',
@@ -246,9 +249,9 @@ onMounted(() => {
                     <Tag :color="step.success ? 'success' : 'error'">
                       {{ step.success ? '成功' : '失败' }}
                     </Tag>
-                    <span class="text-sm text-gray-500"
-                      >{{ step.response_time }}ms</span
-                    >
+                    <!--                    <span class="text-sm text-gray-500"-->
+                    <!--                      >{{ step.response_time }}ms</span-->
+                    <!--                    >-->
                   </div>
                 </div>
 
@@ -297,10 +300,9 @@ onMounted(() => {
 
                 <details v-if="step.response_data" class="text-sm">
                   <summary class="cursor-pointer font-medium">响应数据</summary>
-                  <pre
-                    class="mt-2 max-h-40 overflow-auto rounded bg-gray-50 p-2 text-xs"
-                    >{{ JSON.stringify(step.response_data, null, 2) }}</pre
-                  >
+                  <!--                  <pre-->
+                  <!--                    class="mt-2 max-h-40 overflow-auto rounded bg-gray-50 p-2 text-xs"-->
+                  <!--                    >{{ JSON.stringify(step.response_data, null, 2) }}</pre>-->
                 </details>
               </div>
             </Timeline.Item>

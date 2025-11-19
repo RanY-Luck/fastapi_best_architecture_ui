@@ -5,7 +5,7 @@ import type {
   OnActionClickParams,
   VxeTableGridOptions,
 } from '#/adapter/vxe-table';
-import type { TestReport } from '#/api/api-testing';
+import type { TestReport } from '#/plugins/api_testing/api/types';
 
 import { onMounted } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
@@ -20,12 +20,12 @@ import {
   deleteTestReportApi,
   exportTestReportApi,
   getTestReportListApi,
-} from '#/api/api-testing';
+} from '#/plugins/api_testing/api/testreport';
 
 import { querySchema, useColumns } from './data';
 
 defineOptions({
-  name: 'ApiTestingTestReport',
+  name: 'ApiTestingTestReportDetail',
 });
 
 const route = useRoute();
@@ -33,7 +33,8 @@ const router = useRouter();
 
 // 表单配置
 const formOptions: VbenFormProps = {
-  collapsed: true,
+  // 默认展开
+  collapsed: false,
   showCollapseButton: true,
   submitButtonOptions: {
     content: $t('common.form.query'),
@@ -92,7 +93,6 @@ function onActionClick({ code, row }: OnActionClickParams<TestReport>) {
       break;
     }
     case 'detail': {
-      // 跳转到报告详情页面
       router.push({
         name: 'ApiTestingTestReportDetail',
         params: { id: row.id },

@@ -56,7 +56,7 @@ const routes: RouteRecordRaw[] = [
       },
       {
         name: 'ApiTestingTestReport',
-        path: '/api-testing/testreport',
+        path: '/api_testing/testreport',
         component: () =>
           import('#/plugins/api_testing/views/testreport/index.vue'),
         meta: {
@@ -66,7 +66,7 @@ const routes: RouteRecordRaw[] = [
       },
       {
         name: 'ApiTestingTestReportDetail',
-        path: '/api-testing/testreport/:id',
+        path: '/api_testing/testreportdetail/:id',
         component: () =>
           import('#/plugins/api_testing/views/testreport/detail.vue'),
         meta: {

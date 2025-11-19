@@ -1,26 +1,21 @@
 import type { VbenFormSchema } from '#/adapter/form';
 import type { OnActionClickFn, VxeGridProps } from '#/adapter/vxe-table';
-import type { TestReport } from '#/api/api-testing';
+import type { TestReport } from '#/plugins/api_testing/api/types';
+
+import { $t } from '@vben/locales';
+
+import { DictEnum, getDictOptions } from '#/utils/dict';
 
 // 查询表单配置
 export const querySchema: VbenFormSchema[] = [
   {
-    component: 'Input',
-    fieldName: 'test_case_id',
-    label: '测试用例ID',
-    componentProps: {
-      placeholder: '请输入测试用例ID',
-      type: 'number',
-    },
-  },
-  {
     component: 'Select',
-    fieldName: 'success',
+    fieldName: 'success_only',
     label: '执行结果',
     componentProps: {
       placeholder: '请选择执行结果',
       options: [
-        { label: '全部', value: '' },
+        { label: '全部', value: '-' },
         { label: '成功', value: true },
         { label: '失败', value: false },
       ],
@@ -28,20 +23,24 @@ export const querySchema: VbenFormSchema[] = [
   },
   {
     component: 'DatePicker',
-    fieldName: 'start_time',
+    fieldName: 'start_date',
     label: '开始时间',
     componentProps: {
       placeholder: '请选择开始时间',
       showTime: true,
+      format: 'YYYY-MM-DD', // 显示格式
+      valueFormat: 'YYYY-MM-DD', // 值格式（传给后端的格式）
     },
   },
   {
     component: 'DatePicker',
-    fieldName: 'end_time',
+    fieldName: 'end_date',
     label: '结束时间',
     componentProps: {
       placeholder: '请选择结束时间',
       showTime: true,
+      format: 'YYYY-MM-DD', // 显示格式
+      valueFormat: 'YYYY-MM-DD', // 值格式（传给后端的格式）
     },
   },
 ];
@@ -56,9 +55,10 @@ export function useColumns(
       width: 50,
     },
     {
-      title: 'ID',
-      field: 'id',
-      width: 80,
+      field: 'seq',
+      title: $t('common.table.id'),
+      type: 'seq',
+      width: 50,
     },
     {
       title: '报告名称',
@@ -67,7 +67,7 @@ export function useColumns(
     },
     {
       title: '测试用例',
-      field: 'test_case.name',
+      field: 'test_case_id',
       minWidth: 150,
     },
     {
@@ -76,13 +76,7 @@ export function useColumns(
       width: 100,
       cellRender: {
         name: 'CellTag',
-        props: ({ row }: { row: any }) => {
-          const success = row.success;
-          return {
-            color: success ? 'success' : 'error',
-            text: success ? '成功' : '失败',
-          };
-        },
+        options: getDictOptions(DictEnum.SYS_LOGIN_STATUS),
       },
     },
     {
@@ -127,16 +121,6 @@ export function useColumns(
       },
       cellRender: {
         name: 'CellProgress',
-        props: ({ row }: { row: any }) => {
-          const rate =
-            row.total_steps > 0
-              ? (row.success_steps / row.total_steps) * 100
-              : 0;
-          return {
-            percentage: rate,
-            color: rate >= 80 ? '#52c41a' : rate >= 60 ? '#faad14' : '#ff4d4f',
-          };
-        },
       },
     },
     {
@@ -170,45 +154,45 @@ export function useColumns(
       },
     },
     {
-      title: '创建时间',
-      field: 'create_time',
+      title: $t('common.table.created_time'),
+      field: 'created_time',
       width: 180,
       formatter: ({ cellValue }) => {
         return cellValue ? new Date(cellValue).toLocaleString() : '';
       },
     },
     {
-      title: '操作',
-      field: 'action',
-      width: 200,
+      title: $t('common.table.operation'),
+      field: 'operation',
+      width: 280,
       fixed: 'right',
       cellRender: {
-        name: 'CellActions',
-        props: {
-          onActionClick,
-          actions: [
-            {
-              code: 'detail',
-              text: '查看详情',
-              icon: 'lucide:eye',
-            },
-            {
-              code: 'export',
-              text: '导出报告',
-              icon: 'lucide:download',
-            },
-            {
-              code: 'delete',
-              text: '删除',
-              icon: 'lucide:trash-2',
-              color: 'error',
-              confirm: {
-                title: '确认删除',
-                content: '确定要删除这个测试报告吗？删除后不可恢复。',
-              },
-            },
-          ],
+        attrs: {
+          onClick: onActionClick,
         },
+        name: 'CellOperation',
+        options: [
+          {
+            code: 'detail',
+            text: '查看详情',
+            icon: 'lucide:eye',
+          },
+          {
+            code: 'export',
+            text: '导出报告',
+            icon: 'lucide:download',
+          },
+          {
+            code: 'delete',
+            text: '删除',
+            icon: 'lucide:trash-2',
+            color: 'error',
+            confirm: {
+              title: '确认删除',
+              content: '确定要删除这个测试报告吗？删除后不可恢复。',
+            },
+          },
+        ],
       },
     },
   ];
