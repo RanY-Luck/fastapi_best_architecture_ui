@@ -5,7 +5,7 @@ import type {
   OnActionClickParams,
   VxeTableGridOptions,
 } from '#/adapter/vxe-table';
-import type { TestStep } from '#/api/api-testing';
+import type { TestStep } from '#/plugins/api_testing/api/types';
 
 import { onMounted, ref } from 'vue';
 import { useRoute } from 'vue-router';
@@ -24,7 +24,7 @@ import {
   executeTestStepApi,
   getTestStepListApi,
   updateTestStepApi,
-} from '#/api/api-testing';
+} from '#/plugins/api_testing/api/teststep';
 
 import { querySchema, testStepFormSchema, useColumns } from './data';
 
@@ -36,7 +36,7 @@ const route = useRoute();
 
 // 表单配置
 const formOptions: VbenFormProps = {
-  collapsed: true,
+  collapsed: false,
   showCollapseButton: true,
   submitButtonOptions: {
     content: $t('common.form.query'),
@@ -66,17 +66,24 @@ const gridOptions: VxeTableGridOptions<TestStep> = {
   proxyConfig: {
     ajax: {
       query: async ({ page }, formValues) => {
-        // 如果URL中有test_case_id参数，自动填充到查询条件中
-        const testCaseId = route.query.test_case_id;
-        const params = {
+        // 过滤掉空字符串和 null
+        // eslint-disable-next-line unicorn/no-array-reduce
+        const filteredParams = Object.entries(formValues).reduce<
+          Record<string, any>
+        >(
+          (acc, [key, value]) => {
+            if (value !== '' && value !== null && value !== undefined) {
+              acc[key] = value;
+            }
+            return acc;
+          },
+          {}, // 初始值
+        );
+        return await getTestStepListApi({
           page: page.currentPage,
           size: page.pageSize,
-          ...formValues,
-        };
-        if (testCaseId) {
-          params.test_case_id = Number(testCaseId);
-        }
-        return await getTestStepListApi(params);
+          ...filteredParams,
+        });
       },
     },
   },
@@ -92,11 +99,11 @@ const [TestStepForm, testStepFormApi] = useVbenForm({
 // 创建步骤模态框
 const [CreateModal, createModalApi] = useVbenModal({
   title: '创建测试步骤',
-  width: 900,
+  class: 'w-[900px]',
   onConfirm: async () => {
     const values = await testStepFormApi.validate();
     if (values) {
-      await createTestStepApi(values);
+      await createTestStepApi(values as any);
       message.success('测试步骤创建成功');
       onRefresh();
       return true;
@@ -120,11 +127,11 @@ const [CreateModal, createModalApi] = useVbenModal({
 const editingStepId = ref<null | number>(null);
 const [EditModal, editModalApi] = useVbenModal({
   title: '编辑测试步骤',
-  width: 900,
+  class: 'w-[900px]',
   onConfirm: async () => {
     const values = await testStepFormApi.validate();
     if (values && editingStepId.value) {
-      await updateTestStepApi(editingStepId.value, values);
+      await updateTestStepApi(editingStepId.value, values as any);
       message.success('测试步骤更新成功');
       onRefresh();
       return true;
@@ -143,7 +150,7 @@ const [EditModal, editModalApi] = useVbenModal({
 const executionResult = ref<any>(null);
 const [ResultModal, resultModalApi] = useVbenModal({
   title: '执行结果',
-  width: 800,
+  class: 'w-[800px]',
   footer: false,
 });
 
@@ -152,7 +159,7 @@ function onActionClick({ code, row }: OnActionClickParams<TestStep>) {
   switch (code) {
     case 'copy': {
       const copyData = { ...row };
-      delete copyData.id;
+      delete (copyData as any).id;
       copyData.name = `${copyData.name}_副本`;
       copyData.order = copyData.order + 1;
       testStepFormApi.setValues(copyData);

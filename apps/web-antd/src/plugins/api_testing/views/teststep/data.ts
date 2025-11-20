@@ -1,6 +1,8 @@
 import type { VbenFormSchema } from '#/adapter/form';
 import type { OnActionClickFn, VxeGridProps } from '#/adapter/vxe-table';
-import type { TestStep } from '#/api/api-testing';
+import type { TestStep } from '#/plugins/api_testing/api/types';
+
+import { $t } from '@vben/locales';
 
 // HTTP方法选项
 export const httpMethodOptions = [
@@ -196,13 +198,19 @@ export function useColumns(
       width: 50,
     },
     {
-      title: 'ID',
-      field: 'id',
-      width: 80,
+      field: 'seq',
+      title: $t('common.table.id'),
+      type: 'seq',
+      width: 50,
     },
     {
       title: '步骤名称',
       field: 'name',
+      minWidth: 150,
+    },
+    {
+      title: '测试用例',
+      field: 'test_case_id',
       minWidth: 150,
     },
     {
@@ -253,61 +261,62 @@ export function useColumns(
       width: 100,
       cellRender: {
         name: 'CellTag',
-        props: ({ row }: { row: any }) => {
-          const status = row.status;
-          return {
-            color: status === 1 ? 'success' : 'error',
-            text: status === 1 ? '启用' : '禁用',
-          };
-        },
       },
     },
     {
-      title: '创建时间',
-      field: 'create_time',
+      title: $t('common.table.created_time'),
+      field: 'created_time',
       width: 180,
       formatter: ({ cellValue }) => {
         return cellValue ? new Date(cellValue).toLocaleString() : '';
       },
     },
     {
-      title: '操作',
-      field: 'action',
+      title: $t('common.table.updated_time'),
+      field: 'updated_time',
+      width: 180,
+      formatter: ({ cellValue }) => {
+        return cellValue ? new Date(cellValue).toLocaleString() : '';
+      },
+    },
+    {
+      title: $t('common.table.operation'),
+      field: 'operation',
       width: 280,
       fixed: 'right',
       cellRender: {
-        name: 'CellActions',
-        props: {
-          onActionClick,
-          actions: [
-            {
-              code: 'execute',
-              text: '执行',
-              icon: 'lucide:play',
-              color: 'success',
-            },
-            {
-              code: 'edit',
-              text: '编辑',
-              icon: 'lucide:edit',
-            },
-            {
-              code: 'copy',
-              text: '复制',
-              icon: 'lucide:copy',
-            },
-            {
-              code: 'delete',
-              text: '删除',
-              icon: 'lucide:trash-2',
-              color: 'error',
-              confirm: {
-                title: '确认删除',
-                content: '确定要删除这个测试步骤吗？删除后不可恢复。',
-              },
-            },
-          ],
+        attrs: {
+          onClick: onActionClick,
         },
+        name: 'CellOperation',
+        options: [
+          {
+            code: 'execute',
+            text: '执行',
+            icon: 'lucide:play',
+            color: 'success',
+          },
+          {
+            code: 'edit',
+            text: '编辑',
+            icon: 'lucide:edit',
+          },
+          {
+            code: 'copy',
+            text: '复制',
+            icon: 'lucide:copy',
+          },
+          {
+            code: 'delete',
+            text: '删除',
+            icon: 'lucide:trash-2',
+            color: 'error',
+            confirm: {
+              title: '确认删除',
+              content: '确定要删除这个测试步骤吗？删除后不可恢复。',
+            },
+          },
+        ],
       },
     },
   ];
