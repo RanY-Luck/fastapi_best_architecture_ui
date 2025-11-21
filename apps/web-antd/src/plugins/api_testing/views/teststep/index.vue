@@ -175,15 +175,26 @@ const [EditModal, editModalApi] = useVbenModal({
   title: '编辑测试步骤',
   class: 'w-[900px]',
   onConfirm: async () => {
-    const values = await testStepFormApi.validate();
-    if (values && editingStepId.value) {
-      await updateTestStepApi(editingStepId.value, values as any);
-      message.success('测试步骤更新成功');
-      await createModalApi.close();
-      onRefresh();
-      return true;
+    try {
+      if (!editingStepId.value) {
+        message.error('编辑 ID 无效');
+        return false;
+      }
+      // 先验证并获取值
+      const values = await testStepFormApi.getValues();
+      if (values && Object.keys(values).length > 0) {
+        const UpdateRequestData = transformFormToRequest(values);
+        await updateTestStepApi(editingStepId.value, UpdateRequestData);
+        message.success('测试步骤更新成功');
+        onRefresh();
+        await editModalApi.close();
+        return true;
+      }
+    } catch (error) {
+      console.error('表单验证失败:', error);
+      message.error('表单验证失败，请检查必填项');
+      return false;
     }
-    return false;
   },
   onOpenChange: (isOpen) => {
     if (!isOpen) {
@@ -309,7 +320,9 @@ onMounted(() => {
           }}</pre>
         </div>
         <div v-if="executionResult.error_message">
-          <label class="mb-1 block text-sm font-medium text-red-600">错误信息:</label>
+          <label class="mb-1 block text-sm font-medium text-red-600"
+            >错误信息:</label
+          >
           <div class="rounded bg-red-50 p-2 text-red-600">
             {{ executionResult.error_message }}
           </div>
