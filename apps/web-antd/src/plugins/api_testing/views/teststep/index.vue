@@ -138,7 +138,7 @@ const [CreateModal, createModalApi] = useVbenModal({
   class: 'w-[900px]',
   onConfirm: async () => {
     try {
-      const values = await testStepFormApi.getValues(true);
+      const values = await testStepFormApi.getValues();
       if (values && Object.keys(values).length > 0) {
         const requestData = transformFormToRequest(values);
         await createTestStepApi(requestData);
@@ -180,7 +180,6 @@ const [EditModal, editModalApi] = useVbenModal({
         message.error('编辑 ID 无效');
         return false;
       }
-      // 先验证并获取值
       const values = await testStepFormApi.getValues();
       if (values && Object.keys(values).length > 0) {
         const UpdateRequestData = transformFormToRequest(values);
@@ -220,7 +219,9 @@ function onActionClick({ code, row }: OnActionClickParams<TestStep>) {
       delete (copyData as any).id;
       copyData.name = `${copyData.name}_副本`;
       copyData.order = copyData.order + 1;
-      testStepFormApi.setValues(copyData);
+      // 转换对象为字符串格式
+      const formData = transformResponseToForm(copyData);
+      testStepFormApi.setValues(formData);
       createModalApi.open();
       break;
     }
@@ -233,7 +234,9 @@ function onActionClick({ code, row }: OnActionClickParams<TestStep>) {
     }
     case 'edit': {
       editingStepId.value = row.id;
-      testStepFormApi.setValues(row);
+      // ⭐ 转换对象为字符串格式
+      const formData = transformResponseToForm(row);
+      testStepFormApi.setValues(formData);
       editModalApi.open();
       break;
     }
@@ -254,6 +257,37 @@ function onActionClick({ code, row }: OnActionClickParams<TestStep>) {
     }
   }
 }
+
+// 转换函数：将后端返回的对象转换为表单需要的字符串格式
+const transformResponseToForm = (data: any) => {
+  const stringify = (value: any) => {
+    if (!value) return '';
+    if (typeof value === 'object') {
+      return JSON.stringify(value, null, 2); // 格式化显示，方便编辑
+    }
+    return value;
+  };
+
+  return {
+    name: data.name,
+    test_case_id: data.test_case_id,
+    url: data.url,
+    method: data.method,
+    headers: stringify(data.headers),
+    params: stringify(data.params),
+    body: stringify(data.body),
+    files: stringify(data.files),
+    auth: stringify(data.auth),
+    extract: stringify(data.extract),
+    validations: stringify(data.validations),
+    sql_queries: stringify(data.sql_queries),
+    timeout: data.timeout,
+    retry: data.retry,
+    retry_interval: data.retry_interval,
+    order: data.order,
+    status: data.status,
+  };
+};
 
 // 刷新表格
 function onRefresh() {
