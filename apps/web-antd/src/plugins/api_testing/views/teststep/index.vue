@@ -5,21 +5,23 @@ import type {
   OnActionClickParams,
   VxeTableGridOptions,
 } from '#/adapter/vxe-table';
-import type { TestStep } from '#/plugins/api_testing/api/types';
+import type {
+  TestStep,
+  TestStepCreateParams,
+} from '#/plugins/api_testing/api/types';
 
 import { onMounted, ref } from 'vue';
 import { useRoute } from 'vue-router';
 
-import { Page, useVbenModal, VbenButton } from '@vben/common-ui';
+import { Page, useVbenForm, useVbenModal, VbenButton } from '@vben/common-ui';
 import { MaterialSymbolsAdd } from '@vben/icons';
 import { $t } from '@vben/locales';
 
 import { message } from 'ant-design-vue';
 
-import { useVbenForm } from '#/adapter/form';
 import { useVbenVxeGrid } from '#/adapter/vxe-table';
+import { createTestStepApi } from '#/plugins/api_testing/api';
 import {
-  createTestStepApi,
   deleteTestStepApi,
   executeTestStepApi,
   getTestStepListApi,
@@ -43,7 +45,6 @@ const formOptions: VbenFormProps = {
   },
   schema: querySchema,
 };
-
 // 表格配置
 const gridOptions: VxeTableGridOptions<TestStep> = {
   rowConfig: {
@@ -96,23 +97,68 @@ const [TestStepForm, testStepFormApi] = useVbenForm({
   schema: testStepFormSchema,
 });
 
+// 通用转换函数
+const transformFormToRequest = (formValues: any): TestStepCreateParams => {
+  const parseJSON = (value: any) => {
+    if (!value || value === '') return undefined;
+    if (typeof value === 'string') {
+      try {
+        return JSON.parse(value);
+      } catch {
+        return undefined;
+      }
+    }
+    return value;
+  };
+
+  return {
+    name: formValues.name,
+    test_case_id: Number(formValues.test_case_id),
+    url: formValues.url,
+    method: formValues.method,
+    headers: parseJSON(formValues.headers),
+    params: parseJSON(formValues.params),
+    body: parseJSON(formValues.body),
+    files: parseJSON(formValues.files),
+    auth: parseJSON(formValues.auth),
+    extract: parseJSON(formValues.extract),
+    validations: parseJSON(formValues.validations),
+    sql_queries: parseJSON(formValues.sql_queries),
+    timeout: formValues.timeout,
+    retry: formValues.retry,
+    retry_interval: formValues.retry_interval,
+    order: formValues.order,
+    status: formValues.status,
+  };
+};
+
 // 创建步骤模态框
 const [CreateModal, createModalApi] = useVbenModal({
   title: '创建测试步骤',
   class: 'w-[900px]',
   onConfirm: async () => {
-    const values = await testStepFormApi.validate();
-    if (values) {
-      await createTestStepApi(values as any);
-      message.success('测试步骤创建成功');
-      onRefresh();
-      return true;
+    try {
+      const values = await testStepFormApi.getValues(true);
+      if (values && Object.keys(values).length > 0) {
+        const requestData = transformFormToRequest(values);
+        await createTestStepApi(requestData);
+        message.success('测试步骤创建成功');
+        onRefresh();
+        await createModalApi.close();
+        return true;
+      }
+    } catch (error) {
+      console.error('表单验证或提交失败:', error);
+      if (error instanceof SyntaxError) {
+        message.error('JSON格式错误，请检查输入格式');
+      } else {
+        message.error('表单验证失败，请检查必填项');
+      }
+      return false;
     }
-    return false;
   },
   onOpenChange: (isOpen) => {
     if (isOpen) {
-      // 如果URL中有test_case_id参数，自动填充
       const testCaseId = route.query.test_case_id;
       if (testCaseId) {
         testStepFormApi.setValues({ test_case_id: Number(testCaseId) });
@@ -133,6 +179,7 @@ const [EditModal, editModalApi] = useVbenModal({
     if (values && editingStepId.value) {
       await updateTestStepApi(editingStepId.value, values as any);
       message.success('测试步骤更新成功');
+      await createModalApi.close();
       onRefresh();
       return true;
     }
@@ -262,9 +309,7 @@ onMounted(() => {
           }}</pre>
         </div>
         <div v-if="executionResult.error_message">
-          <label class="mb-1 block text-sm font-medium text-red-600"
-            >错误信息:</label
-          >
+          <label class="mb-1 block text-sm font-medium text-red-600">错误信息:</label>
           <div class="rounded bg-red-50 p-2 text-red-600">
             {{ executionResult.error_message }}
           </div>

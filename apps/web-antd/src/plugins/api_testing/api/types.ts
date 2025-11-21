@@ -126,14 +126,14 @@ export interface TestStepCreateParams {
   test_case_id: number;
   url: string;
   method: string;
-  headers?: Record<string, string>;
-  params?: Record<string, any>;
-  body?: Record<string, any>;
-  files?: Record<string, string>;
-  auth?: Record<string, string>;
-  extract?: Record<string, string>;
-  validate?: Array<Record<string, any>>;
-  sql_queries?: Array<Record<string, any>>;
+  headers?: null | Record<string, string>;
+  params?: null | Record<string, any>;
+  body?: null | Record<string, any>;
+  files?: null | Record<string, string>;
+  auth?: null | Record<string, string>;
+  extract?: null | Record<string, string>;
+  validations?: Array<Record<string, any>> | null;
+  sql_queries?: Array<Record<string, any>> | null;
   timeout?: number;
   retry?: number;
   retry_interval?: number;
@@ -142,21 +142,21 @@ export interface TestStepCreateParams {
 }
 
 export interface TestStepUpdateParams {
-  name?: string;
-  url?: string;
-  method?: string;
-  headers?: Record<string, string>;
-  params?: Record<string, any>;
-  body?: Record<string, any>;
-  files?: Record<string, string>;
-  auth?: Record<string, string>;
-  extract?: Record<string, string>;
-  validate?: Array<Record<string, any>>;
-  sql_queries?: Array<Record<string, any>>;
+  name: string;
+  url: string;
+  method: string;
+  headers?: null | Record<string, string>;
+  params?: null | Record<string, any>;
+  body?: null | Record<string, any>;
+  files?: null | Record<string, string>;
+  auth?: null | Record<string, string>;
+  extract?: null | Record<string, string>;
+  validations?: Array<Record<string, any>> | null;
+  sql_queries?: Array<Record<string, any>> | null;
   timeout?: number;
   retry?: number;
   retry_interval?: number;
-  order?: number;
+  order: number;
   status?: number;
 }
 

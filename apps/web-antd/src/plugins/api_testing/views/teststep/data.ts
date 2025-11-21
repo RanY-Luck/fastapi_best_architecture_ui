@@ -65,28 +65,18 @@ export const testStepFormSchema: VbenFormSchema[] = [
     fieldName: 'name',
     label: '步骤名称',
     rules: 'required',
-    componentProps: {
-      placeholder: '请输入步骤名称',
-    },
   },
   {
     component: 'Input',
     fieldName: 'test_case_id',
     label: '测试用例ID',
     rules: 'required',
-    componentProps: {
-      placeholder: '请输入测试用例ID',
-      type: 'number',
-    },
   },
   {
     component: 'Input',
     fieldName: 'url',
     label: '请求URL',
     rules: 'required',
-    componentProps: {
-      placeholder: '请输入请求URL，如：/api/users',
-    },
   },
   {
     component: 'Select',
@@ -94,61 +84,91 @@ export const testStepFormSchema: VbenFormSchema[] = [
     label: 'HTTP方法',
     rules: 'required',
     componentProps: {
-      placeholder: '请选择HTTP方法',
       options: httpMethodOptions,
     },
   },
   {
-    component: 'JsonEditor',
+    component: 'Textarea',
     fieldName: 'headers',
     label: '请求头',
     componentProps: {
-      placeholder: '请输入请求头（JSON格式）',
-      height: 120,
+      placeholder:
+        '请输入请求头(JSON格式)\n例如: {"Content-Type": "application/json"}',
+      rows: 4,
     },
   },
   {
-    component: 'JsonEditor',
+    component: 'Textarea',
     fieldName: 'params',
     label: '查询参数',
     componentProps: {
-      placeholder: '请输入查询参数（JSON格式）',
-      height: 120,
+      placeholder: '请输入查询参数(JSON格式)\n例如: {"page": 1, "size": 10}',
+      rows: 4,
     },
   },
   {
-    component: 'JsonEditor',
+    component: 'Textarea',
     fieldName: 'body',
     label: '请求体',
     componentProps: {
-      placeholder: '请输入请求体（JSON格式）',
-      height: 150,
+      placeholder: '请输入请求体(JSON格式)',
+      rows: 5,
     },
   },
   {
-    component: 'JsonEditor',
+    component: 'Textarea',
+    fieldName: 'files',
+    label: '文件上传',
+    componentProps: {
+      placeholder: '请输入文件配置(JSON格式)',
+      rows: 3,
+    },
+  },
+  {
+    component: 'Textarea',
+    fieldName: 'auth',
+    label: '认证信息',
+    componentProps: {
+      placeholder:
+        '请输入认证信息(JSON格式)\n例如: {"type": "Bearer", "token": "xxx"}',
+      rows: 3,
+    },
+  },
+  {
+    component: 'Textarea',
     fieldName: 'extract',
     label: '变量提取',
     componentProps: {
-      placeholder: '请输入变量提取规则（JSON格式）',
-      height: 120,
+      placeholder:
+        '请输入变量提取规则(JSON格式)\n例如: {"user_id": "$.data.id"}',
+      rows: 4,
     },
   },
   {
-    component: 'JsonEditor',
-    fieldName: 'validate',
+    component: 'Textarea',
+    fieldName: 'validations',
     label: '断言规则',
     componentProps: {
-      placeholder: '请输入断言规则（JSON格式）',
-      height: 150,
+      placeholder:
+        '请输入断言规则(JSON格式)\n例如: [{"field": "status_code", "operator": "eq", "expected": 200}]',
+      rows: 5,
+    },
+  },
+  {
+    component: 'Textarea',
+    fieldName: 'sql_queries',
+    label: 'SQL查询',
+    componentProps: {
+      placeholder: '请输入SQL查询(JSON格式)',
+      rows: 4,
     },
   },
   {
     component: 'InputNumber',
     fieldName: 'timeout',
     label: '超时时间(秒)',
+    defaultValue: 30,
     componentProps: {
-      placeholder: '请输入超时时间',
       min: 1,
       max: 300,
     },
@@ -157,10 +177,20 @@ export const testStepFormSchema: VbenFormSchema[] = [
     component: 'InputNumber',
     fieldName: 'retry',
     label: '重试次数',
+    defaultValue: 0,
     componentProps: {
-      placeholder: '请输入重试次数',
       min: 0,
       max: 10,
+    },
+  },
+  {
+    component: 'InputNumber',
+    fieldName: 'retry_interval',
+    label: '重试间隔(秒)',
+    defaultValue: 1,
+    componentProps: {
+      min: 1,
+      max: 60,
     },
   },
   {
@@ -168,9 +198,9 @@ export const testStepFormSchema: VbenFormSchema[] = [
     fieldName: 'order',
     label: '执行顺序',
     rules: 'required',
+    defaultValue: 0,
     componentProps: {
-      placeholder: '请输入执行顺序',
-      min: 1,
+      min: 0,
     },
   },
   {
@@ -178,8 +208,8 @@ export const testStepFormSchema: VbenFormSchema[] = [
     fieldName: 'status',
     label: '状态',
     rules: 'required',
+    defaultValue: 1,
     componentProps: {
-      placeholder: '请选择状态',
       options: [
         { label: '启用', value: 1 },
         { label: '禁用', value: 0 },
@@ -219,22 +249,6 @@ export function useColumns(
       width: 100,
       cellRender: {
         name: 'CellTag',
-        props: ({ row }: { row: any }) => {
-          const method = row.method;
-          const colorMap: Record<string, string> = {
-            GET: 'success',
-            POST: 'primary',
-            PUT: 'warning',
-            DELETE: 'error',
-            PATCH: 'info',
-            HEAD: 'default',
-            OPTIONS: 'default',
-          };
-          return {
-            color: colorMap[method] || 'default',
-            text: method,
-          };
-        },
       },
     },
     {
@@ -282,7 +296,7 @@ export function useColumns(
     {
       title: $t('common.table.operation'),
       field: 'operation',
-      width: 280,
+      width: 290,
       fixed: 'right',
       cellRender: {
         attrs: {
