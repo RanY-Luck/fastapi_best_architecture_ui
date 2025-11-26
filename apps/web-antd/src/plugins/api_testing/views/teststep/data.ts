@@ -4,6 +4,8 @@ import type { TestStep } from '#/plugins/api_testing/api/types';
 
 import { $t } from '@vben/locales';
 
+import { getAllEnabledTestCasesApi } from '#/plugins/api_testing/api';
+
 // HTTP方法选项
 export const httpMethodOptions = [
   { label: 'GET', value: 'GET' },
@@ -26,12 +28,21 @@ export const querySchema: VbenFormSchema[] = [
     },
   },
   {
-    component: 'Input',
+    component: 'ApiSelect',
     fieldName: 'test_case_id',
-    label: '测试用例ID',
+    label: '测试用例',
     componentProps: {
-      placeholder: '请输入测试用例ID',
-      type: 'number',
+      placeholder: '请选择测试用例',
+      api: async () => {
+        const data = (await getAllEnabledTestCasesApi()) as any;
+        if (data && 'items' in data && Array.isArray(data.items)) {
+          return data.items;
+        }
+        return Array.isArray(data) ? data : [];
+      },
+      labelField: 'name',
+      valueField: 'id',
+      immediate: true,
     },
   },
   {
@@ -67,10 +78,23 @@ export const testStepFormSchema: VbenFormSchema[] = [
     rules: 'required',
   },
   {
-    component: 'Input',
+    component: 'ApiSelect',
     fieldName: 'test_case_id',
-    label: '测试用例ID',
     rules: 'required',
+    label: '测试用例',
+    componentProps: {
+      placeholder: '请选择测试用例',
+      api: async () => {
+        const data = (await getAllEnabledTestCasesApi()) as any;
+        if (data && 'items' in data && Array.isArray(data.items)) {
+          return data.items;
+        }
+        return Array.isArray(data) ? data : [];
+      },
+      labelField: 'name',
+      valueField: 'id',
+      immediate: true,
+    },
   },
   {
     component: 'Input',

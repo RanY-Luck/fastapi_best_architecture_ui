@@ -66,3 +66,12 @@ export async function getTestCasesByProjectApi(projectId: number) {
 export async function executeTestCaseApi(id: number) {
   return requestClient.post<any>(`${API_PREFIX}/${id}/execute`);
 }
+
+/**
+ * 获取所有启用的测试用例（用于下拉选择）
+ */
+export async function getAllEnabledTestCasesApi() {
+  return requestClient.get<TestCase[]>(`${API_PREFIX}`, {
+    params: { status: 1, size: 1000 },
+  });
+}
