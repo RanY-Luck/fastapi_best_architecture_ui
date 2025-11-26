@@ -240,7 +240,7 @@ export function useColumns(
     },
     {
       title: '测试用例',
-      field: 'test_case_id',
+      field: 'test_case_name',
       minWidth: 150,
     },
     {
