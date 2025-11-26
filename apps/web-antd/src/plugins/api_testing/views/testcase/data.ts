@@ -145,7 +145,7 @@ export function useColumns(
     },
     {
       title: '所属项目',
-      field: 'project_id',
+      field: 'project_name',
       width: 150,
     },
     {
