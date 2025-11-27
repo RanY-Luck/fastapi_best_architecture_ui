@@ -12,11 +12,11 @@ const routes: RouteRecordRaw[] = [
       title: 'API测试',
     },
     name: 'ApiTesting',
-    path: '/api-testing',
+    path: '/api_testing',
     children: [
       {
         name: 'ApiTestingDashboard',
-        path: '/api-testing/dashboard',
+        path: '/api_dashboard',
         component: () =>
           import('#/plugins/api_testing/views/dashboard/index.vue'),
         meta: {
@@ -26,7 +26,7 @@ const routes: RouteRecordRaw[] = [
       },
       {
         name: 'ApiTestingProject',
-        path: '/api-testing/project',
+        path: '/project',
         component: () =>
           import('#/plugins/api_testing/views/project/index.vue'),
         meta: {
@@ -36,7 +36,7 @@ const routes: RouteRecordRaw[] = [
       },
       {
         name: 'ApiTestingTestCase',
-        path: '/api-testing/testcase',
+        path: '/testcase',
         component: () =>
           import('#/plugins/api_testing/views/testcase/index.vue'),
         meta: {
@@ -46,7 +46,7 @@ const routes: RouteRecordRaw[] = [
       },
       {
         name: 'ApiTestingTestStep',
-        path: '/api-testing/teststep',
+        path: '/teststep',
         component: () =>
           import('#/plugins/api_testing/views/teststep/index.vue'),
         meta: {
@@ -56,7 +56,7 @@ const routes: RouteRecordRaw[] = [
       },
       {
         name: 'ApiTestingTestReport',
-        path: '/api_testing/testreport',
+        path: '/testreport',
         component: () =>
           import('#/plugins/api_testing/views/testreport/index.vue'),
         meta: {
@@ -66,7 +66,7 @@ const routes: RouteRecordRaw[] = [
       },
       {
         name: 'ApiTestingTestReportDetail',
-        path: '/api_testing/testreportdetail/:id',
+        path: '/testreportdetail/:id',
         component: () =>
           import('#/plugins/api_testing/views/testreport/detail.vue'),
         meta: {

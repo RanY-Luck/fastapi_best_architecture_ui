@@ -5,7 +5,6 @@ import type {
   TestReport,
 } from '#/plugins/api_testing/api/types.ts';
 
-// 根据实际路径调整
 import { computed, onMounted, ref } from 'vue';
 import { useRouter } from 'vue-router';
 
@@ -138,15 +137,15 @@ async function fetchRecentData() {
 function handleQuickAction(action: string) {
   switch (action) {
     case 'create-case': {
-      router.push('/api_testing/testcase');
+      router.push('/testcase');
       break;
     }
     case 'create-project': {
-      router.push('/api_testing/project');
+      router.push('/project');
       break;
     }
     case 'view-reports': {
-      router.push('/api_testing/testreport');
+      router.push('/testreport');
       break;
     }
   }
@@ -163,7 +162,7 @@ function goToDetail(type: string, id: number) {
       break;
     }
     case 'project': {
-      router.push('/api_testing/project');
+      router.push('/project');
       break;
     }
     case 'report': {
