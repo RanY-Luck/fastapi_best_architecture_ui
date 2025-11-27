@@ -86,6 +86,8 @@ const [Grid, gridApi] = useVbenVxeGrid({ formOptions, gridOptions });
 // 创建/编辑项目表单
 const [ProjectForm, projectFormApi] = useVbenForm({
   schema: projectFormSchema,
+  // 移除默认按钮
+  showDefaultActions: false,
 });
 
 // 创建项目模态框

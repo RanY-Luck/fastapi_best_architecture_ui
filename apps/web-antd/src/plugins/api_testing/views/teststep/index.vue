@@ -95,6 +95,8 @@ const [Grid, gridApi] = useVbenVxeGrid({ formOptions, gridOptions });
 // 创建/编辑步骤表单
 const [TestStepForm, testStepFormApi] = useVbenForm({
   schema: testStepFormSchema,
+  // 移除默认按钮
+  showDefaultActions: false,
 });
 
 // 通用转换函数
@@ -354,9 +356,7 @@ onMounted(() => {
           }}</pre>
         </div>
         <div v-if="executionResult.error_message">
-          <label class="mb-1 block text-sm font-medium text-red-600"
-            >错误信息:</label
-          >
+          <label class="mb-1 block text-sm font-medium text-red-600">错误信息:</label>
           <div class="rounded bg-red-50 p-2 text-red-600">
             {{ executionResult.error_message }}
           </div>

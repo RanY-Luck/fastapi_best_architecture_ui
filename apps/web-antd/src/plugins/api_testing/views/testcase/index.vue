@@ -93,6 +93,8 @@ const [Grid, gridApi] = useVbenVxeGrid({ formOptions, gridOptions });
 // 创建/编辑用例表单
 const [TestCaseForm, testCaseFormApi] = useVbenForm({
   schema: testCaseFormSchema,
+  // 移除默认按钮
+  showDefaultActions: false,
 });
 
 // 创建用例模态框
