@@ -99,6 +99,7 @@ const [TestCaseForm, testCaseFormApi] = useVbenForm({
 
 // 创建用例模态框
 const [CreateModal, createModalApi] = useVbenModal({
+  closeOnClickModal: false, // 禁止点击遮罩关闭
   title: '创建测试用例',
   onConfirm: async () => {
     try {
@@ -132,6 +133,7 @@ const [CreateModal, createModalApi] = useVbenModal({
 // 编辑用例模态框
 const editingCaseId = ref<null | number>(null);
 const [EditModal, editModalApi] = useVbenModal({
+  closeOnClickModal: false, // 禁止点击遮罩关闭
   title: '编辑测试用例',
   onConfirm: async () => {
     try {

@@ -136,6 +136,7 @@ const transformFormToRequest = (formValues: any): TestStepCreateParams => {
 
 // 创建步骤模态框
 const [CreateModal, createModalApi] = useVbenModal({
+  closeOnClickModal: false, // 禁止点击遮罩关闭
   title: '创建测试步骤',
   class: 'w-[900px]',
   onConfirm: async () => {
@@ -174,6 +175,7 @@ const [CreateModal, createModalApi] = useVbenModal({
 // 编辑步骤模态框
 const editingStepId = ref<null | number>(null);
 const [EditModal, editModalApi] = useVbenModal({
+  closeOnClickModal: false, // 禁止点击遮罩关闭
   title: '编辑测试步骤',
   class: 'w-[900px]',
   onConfirm: async () => {

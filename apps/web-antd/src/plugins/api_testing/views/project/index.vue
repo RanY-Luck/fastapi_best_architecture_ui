@@ -92,6 +92,7 @@ const [ProjectForm, projectFormApi] = useVbenForm({
 
 // 创建项目模态框
 const [CreateModal, createModalApi] = useVbenModal({
+  closeOnClickModal: false, // 禁止点击遮罩关闭
   title: '创建项目',
   onConfirm: async () => {
     try {
@@ -126,6 +127,7 @@ const [CreateModal, createModalApi] = useVbenModal({
 // 编辑项目模态框
 const editingProjectId = ref<null | number>(null);
 const [EditModal, editModalApi] = useVbenModal({
+  closeOnClickModal: false, // 禁止点击遮罩关闭
   title: '编辑项目',
   width: 600,
   onConfirm: async () => {
