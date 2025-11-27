@@ -137,15 +137,15 @@ async function fetchRecentData() {
 function handleQuickAction(action: string) {
   switch (action) {
     case 'create-case': {
-      router.push('/testcase');
+      router.push('/plugins/testcase');
       break;
     }
     case 'create-project': {
-      router.push('/project');
+      router.push('/plugins/project');
       break;
     }
     case 'view-reports': {
-      router.push('/testreport');
+      router.push('/plugins/testreport');
       break;
     }
   }
@@ -156,13 +156,12 @@ function goToDetail(type: string, id: number) {
   switch (type) {
     case 'case': {
       router.push({
-        name: 'ApiTestingTestStep',
-        query: { test_case_id: id },
+        name: 'ApiTestingTestCase',
       });
       break;
     }
     case 'project': {
-      router.push('/project');
+      router.push('/plugins/project');
       break;
     }
     case 'report': {
