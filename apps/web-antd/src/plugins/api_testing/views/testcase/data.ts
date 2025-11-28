@@ -4,6 +4,7 @@ import type { TestCase } from '#/plugins/api_testing/api';
 
 import { $t } from '@vben/locales';
 
+import { CodeMirror } from '#/components/CodeMirror';
 import { getAllEnabledApiProjectsApi } from '#/plugins/api_testing/api';
 
 // 查询表单配置
@@ -89,23 +90,31 @@ export const testCaseFormSchema: VbenFormSchema[] = [
     },
   },
   {
-    component: 'CodeMirror',
+    component: CodeMirror,
     fieldName: 'pre_script',
     label: '前置脚本',
     componentProps: {
-      placeholder: '请输入前置脚本（JavaScript）',
+      placeholder: '',
       language: 'javascript',
-      height: 150,
+      height: 300, // 可以调整高度
+      theme: 'light', // 或 'dark'
+      lineNumbers: true,
+      lineWrapping: true,
+      tabSize: 2,
     },
   },
   {
-    component: 'CodeMirror',
+    component: CodeMirror,
     fieldName: 'post_script',
     label: '后置脚本',
     componentProps: {
-      placeholder: '请输入后置脚本（JavaScript）',
+      placeholder: '',
       language: 'javascript',
-      height: 150,
+      height: 300, // 可以调整高度
+      theme: 'light', // 'dark' or 'light'
+      lineNumbers: true,
+      lineWrapping: true,
+      tabSize: 2,
     },
   },
   {
