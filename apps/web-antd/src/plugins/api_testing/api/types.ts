@@ -170,6 +170,7 @@ export interface TestStepParams extends PageParams {
 export interface TestReport {
   id: number;
   test_case_id: number;
+  test_case_name: string;
   report_id?: number;
   name: string;
   success: boolean;

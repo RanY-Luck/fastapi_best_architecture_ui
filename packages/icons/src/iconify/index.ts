@@ -38,3 +38,5 @@ export const FxemojiBarChart = createIconifyIcon('fxemoji:barchart');
 
 export const MdiFile = createIconifyIcon('mdi:file');
 export const MdiPlay = createIconifyIcon('mdi:play');
+export const Download = createIconifyIcon('mdi-light:arrow-down-circle');
+export const RefreshCw = createIconifyIcon('mdi-light:refresh');

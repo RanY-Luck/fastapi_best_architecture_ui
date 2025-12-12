@@ -5,7 +5,7 @@ import { computed, onMounted, ref } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 
 import { Page, VbenButton } from '@vben/common-ui';
-import { ArrowLeft } from '@vben/icons';
+import { ArrowLeft, Download, RefreshCw } from '@vben/icons';
 
 import {
   Card,
@@ -53,6 +53,12 @@ const formatDuration = (duration: number) => {
   }
 };
 
+// 获取执行步骤列表
+const executionSteps = computed(() => {
+  if (!reportData.value?.details?.steps) return [];
+  return reportData.value.details.steps;
+});
+
 // 获取报告详情
 async function fetchReportDetail() {
   const reportId = Number(route.params.id);
@@ -62,7 +68,9 @@ async function fetchReportDetail() {
   try {
     const result = await getTestReportDetailApi(reportId);
     reportData.value = result;
-  } catch {
+    console.log('报告详情数据:', result); // 调试用
+  } catch (error) {
+    console.error('获取报告详情失败:', error);
     message.error('获取报告详情失败');
   } finally {
     loading.value = false;
@@ -232,77 +240,98 @@ onMounted(() => {
 
       <!-- 执行详情 -->
       <Card title="执行详情">
-        <div
-          v-if="reportData.details && reportData.details.steps"
-          class="space-y-4"
-        >
+        <div v-if="executionSteps.length > 0" class="space-y-4">
           <Timeline>
             <Timeline.Item
-              v-for="(step, index) in reportData.details.steps"
+              v-for="(step, index) in executionSteps"
               :key="index"
               :color="step.success ? 'green' : 'red'"
             >
               <div class="space-y-2">
                 <div class="flex items-center justify-between">
-                  <h4 class="font-medium">{{ step.step_name }}</h4>
+                  <h4 class="font-medium">{{ step.name }}</h4>
                   <div class="flex items-center space-x-2">
                     <Tag :color="step.success ? 'success' : 'error'">
                       {{ step.success ? '成功' : '失败' }}
                     </Tag>
-                    <!--                    <span class="text-sm text-gray-500"-->
-                    <!--                      >{{ step.response_time }}ms</span-->
-                    <!--                    >-->
+                    <span class="text-sm text-gray-500">
+                      {{ step.duration }}ms
+                    </span>
                   </div>
                 </div>
 
-                <div v-if="step.status_code" class="text-sm">
+                <!-- 请求信息 -->
+                <div class="text-sm">
+                  <span class="font-medium">请求:</span>
+                  <Tag>{{ step.request_data?.method || 'N/A' }}</Tag>
+                  <span class="text-gray-600">
+                    {{ step.request_data?.url || step.url }}
+                  </span>
+                </div>
+
+                <!-- 响应状态 -->
+                <div v-if="step.response?.status_code" class="text-sm">
                   <span class="font-medium">状态码:</span>
                   <Tag
                     :color="
-                      step.status_code >= 200 && step.status_code < 300
+                      step.response.status_code >= 200 && step.response.status_code < 300
                         ? 'success'
                         : 'error'
                     "
                   >
-                    {{ step.status_code }}
+                    {{ step.response.status_code }}
                   </Tag>
                 </div>
 
-                <div v-if="step.error_message" class="text-sm text-red-600">
-                  <span class="font-medium">错误信息:</span>
-                  {{ step.error_message }}
+                <!-- 执行时间 -->
+                <div class="text-sm text-gray-500">
+                  <span class="font-medium">开始时间:</span>
+                  {{ new Date(step.start_time).toLocaleString() }}
+                  <span class="ml-4 font-medium">结束时间:</span>
+                  {{ new Date(step.end_time).toLocaleString() }}
                 </div>
 
+                <!-- 断言结果 -->
                 <div
-                  v-if="step.validations && step.validations.length > 0"
+                  v-if="step.assertions && step.assertions.length > 0"
                   class="text-sm"
                 >
                   <span class="font-medium">断言结果:</span>
                   <div class="mt-1 space-y-1">
                     <div
-                      v-for="(validation, vIndex) in step.validations"
-                      :key="vIndex"
+                      v-for="(assertion, aIndex) in step.assertions"
+                      :key="aIndex"
                       class="flex items-center space-x-2"
                     >
-                      <Tag :color="validation.success ? 'success' : 'error'">
-                        {{ validation.success ? '通过' : '失败' }}
+                      <Tag :color="assertion.success ? 'success' : 'error'">
+                        {{ assertion.success ? '通过' : '失败' }}
                       </Tag>
-                      <span>{{
-                        validation.rule.description || validation.rule.field
-                      }}</span>
-                      <span v-if="!validation.success" class="text-red-600">
-                        (期望: {{ validation.rule.expected }}, 实际:
-                        {{ validation.actual }})
-                      </span>
+                      <span>{{ assertion.description || '断言检查' }}</span>
                     </div>
                   </div>
                 </div>
 
-                <details v-if="step.response_data" class="text-sm">
+                <!-- 响应详情 -->
+                <details v-if="step.response" class="text-sm">
                   <summary class="cursor-pointer font-medium">响应数据</summary>
-                  <!--                  <pre-->
-                  <!--                    class="mt-2 max-h-40 overflow-auto rounded bg-gray-50 p-2 text-xs"-->
-                  <!--                    >{{ JSON.stringify(step.response_data, null, 2) }}</pre>-->
+                  <div class="mt-2 space-y-2">
+                    <!-- 响应头 -->
+                    <div v-if="step.response.headers">
+                      <div class="font-medium">响应头:</div>
+                      <pre class="mt-1 max-h-32 overflow-auto rounded bg-gray-50 p-2 text-xs">{{ JSON.stringify(step.response.headers, null, 2) }}</pre>
+                    </div>
+                    <!-- 响应体 -->
+                    <div v-if="step.response.json || step.response.text">
+                      <div class="font-medium">响应体:</div>
+                      <pre class="mt-1 max-h-40 overflow-auto rounded bg-gray-50 p-2 text-xs">{{ step.response.json ? JSON.stringify(step.response.json, null, 2) : step.response.text }}</pre>
+                    </div>
+                  </div>
+                </details>
+
+                <!-- 请求详情 -->
+                <details v-if="step.request_data" class="text-sm">
+                  <summary class="cursor-pointer font-medium">请求数据</summary>
+                  <pre class="mt-2 max-h-40 overflow-auto rounded bg-gray-50 p-2 text-xs">{{ JSON.stringify(step.request_data, null, 2) }}</pre>
                 </details>
               </div>
             </Timeline.Item>
