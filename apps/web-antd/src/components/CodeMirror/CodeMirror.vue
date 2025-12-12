@@ -17,7 +17,7 @@ import { lintKeymap } from '@codemirror/lint';
 import { Compartment, EditorState } from '@codemirror/state';
 import { oneDark } from '@codemirror/theme-one-dark';
 // eslint-disable-next-line vue/no-dupe-keys
-import { EditorView, keymap, placeholder } from '@codemirror/view'; // ← 修正：正确导入 placeholder
+import { EditorView, keymap, placeholder } from '@codemirror/view';
 import { basicSetup } from 'codemirror';
 
 interface Props {
@@ -257,7 +257,7 @@ watch(
     }
   },
 );
-// ← 新增：监听 placeholder 变化
+// 监听 placeholder 变化
 watch(
   () => props.placeholder,
   (newPlaceholder) => {

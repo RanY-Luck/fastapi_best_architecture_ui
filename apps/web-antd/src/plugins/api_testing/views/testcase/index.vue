@@ -155,7 +155,6 @@ const [EditModal, editModalApi] = useVbenModal({
     }
   },
   onOpenChange: async (isOpen, { record }) => {
-    // 可选：用 record 传入数据
     if (isOpen) {
       if (editingCaseId.value) {
         // 编辑模式
