@@ -83,6 +83,7 @@
     "happy-dom": "catalog:",
     "is-ci": "catalog:",
     "lefthook": "catalog:",
+    "less": "^4.4.2",
     "playwright": "catalog:",
     "rimraf": "catalog:",
     "tailwindcss": "catalog:",
