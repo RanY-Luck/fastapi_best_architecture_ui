@@ -188,7 +188,7 @@ onMounted(() => {
             {{ reportData.name }}
           </Descriptions.Item>
           <Descriptions.Item label="测试用例">
-            {{ reportData.test_case?.name || '未知' }}
+            {{ reportData.test_case_name || '未知' }}
           </Descriptions.Item>
           <Descriptions.Item label="执行结果">
             <Tag :color="reportData.success ? 'success' : 'error'">

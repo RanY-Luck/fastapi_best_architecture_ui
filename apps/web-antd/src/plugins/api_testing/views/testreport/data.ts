@@ -88,25 +88,25 @@ export function useColumns(
       title: '成功步骤',
       field: 'success_steps',
       width: 100,
-      cellRender: {
-        name: 'CellTag',
-        props: ({ row }: { row: any }) => ({
-          color: 'success',
-          text: row.success_steps,
-        }),
-      },
+      // cellRender: {
+      //   name: 'CellTag',
+      //   props: ({ row }: { row: any }) => ({
+      //     color: 'success',
+      //     text: row.success_steps,
+      //   }),
+      // },
     },
     {
       title: '失败步骤',
       field: 'fail_steps',
       width: 100,
-      cellRender: {
-        name: 'CellTag',
-        props: ({ row }: { row: any }) => ({
-          color: row.fail_steps > 0 ? 'error' : 'default',
-          text: row.fail_steps,
-        }),
-      },
+      // cellRender: {
+      //   name: 'CellTag',
+      //   props: ({ row }: { row: any }) => ({
+      //     color: row.fail_steps > 0 ? 'error' : 'default',
+      //     text: row.fail_steps,
+      //   }),
+      // },
     },
     {
       title: '成功率',
