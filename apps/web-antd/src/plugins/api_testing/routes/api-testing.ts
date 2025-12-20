@@ -74,6 +74,26 @@ const routes: RouteRecordRaw[] = [
           title: '报告详情',
         },
       },
+      {
+        name: 'ApiTestingEnvironment',
+        path: '/environment',
+        component: () =>
+          import('#/plugins/api_testing/views/environment/index.vue'),
+        meta: {
+          icon: 'lucide:settings-2',
+          title: '环境管理',
+        },
+      },
+      {
+        name: 'ApiTestingVariable',
+        path: '/variable',
+        component: () =>
+          import('#/plugins/api_testing/views/variable/index.vue'),
+        meta: {
+          icon: 'lucide:variable',
+          title: '变量管理',
+        },
+      },
     ],
   },
 ];

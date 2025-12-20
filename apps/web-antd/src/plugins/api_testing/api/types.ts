@@ -258,3 +258,233 @@ export interface StepReorderParams {
     step_id: number;
   }>;
 }
+
+// ============================================================================
+// 环境和变量管理相关类型定义
+// ============================================================================
+
+// ==================== 变量作用域 ====================
+
+/**
+ * 变量作用域枚举
+ */
+export enum VariableScope {
+  CASE = 'case',
+  ENVIRONMENT = 'environment',
+  GLOBAL = 'global',
+  PROJECT = 'project',
+}
+
+/**
+ * 变量作用域类型（字符串字面量）
+ */
+export type VariableScopeType = 'case' | 'environment' | 'global' | 'project';
+
+// ==================== 环境管理 ====================
+
+/**
+ * 环境实体
+ */
+export interface Environment {
+  /** 环境ID */
+  id: number;
+  /** 环境名称 */
+  name: string;
+  /** 所属项目ID */
+  project_id: number;
+  /** 项目名称（用于列表显示，可选） */
+  project_name?: string;
+  /** 环境描述 */
+  description?: string;
+  /** 环境变量（JSON对象） */
+  variables?: Record<string, any>;
+  /** 是否为默认环境 */
+  is_default: boolean;
+  /** 状态：0-禁用，1-启用 */
+  status: number;
+  /** 创建时间 */
+  created_time: string;
+  /** 更新时间 */
+  updated_time: string;
+  /** 变量数量（计算字段，可选） */
+  variable_count?: number;
+}
+
+/**
+ * 创建环境参数
+ */
+export interface EnvironmentCreateParams {
+  id: number;
+  /** 环境名称 */
+  name: string;
+  /** 所属项目ID */
+  project_id: number;
+  /** 环境描述 */
+  description?: string;
+  /** 环境变量 */
+  variables?: Record<string, any>;
+  /** 是否为默认环境 */
+  is_default?: boolean;
+  /** 状态：0-禁用，1-启用 */
+  status?: number;
+}
+
+/**
+ * 更新环境参数
+ */
+export interface EnvironmentUpdateParams {
+  /** 环境ID */
+  id: number;
+  /** 环境名称 */
+  name?: string;
+  /** 环境描述 */
+  description?: string;
+  /** 环境变量 */
+  variables?: Record<string, any>;
+  /** 是否为默认环境 */
+  is_default?: boolean;
+  /** 状态：0-禁用，1-启用 */
+  status?: number;
+}
+
+/**
+ * 环境列表查询参数
+ */
+export interface EnvironmentListParams {
+  /** 项目ID */
+  project_id: number;
+  /** 环境名称（模糊查询） */
+  name?: string;
+  /** 状态筛选 */
+  status?: number;
+}
+
+// ==================== 变量管理 ====================
+
+/**
+ * 变量实体
+ */
+export interface Variable {
+  /** 变量ID */
+  id: number;
+  /** 变量名称 */
+  name: string;
+  /** 变量值（可以是任意类型） */
+  value: any;
+  /** 变量作用域 */
+  scope: VariableScope | VariableScopeType;
+  /** 所属项目ID（当scope为project/environment/case时） */
+  project_id?: number;
+  /** 所属环境ID（当scope为environment时） */
+  environment_id?: number;
+  /** 所属用例ID（当scope为case时） */
+  case_id?: number;
+  /** 变量描述 */
+  description?: string;
+  /** 是否加密存储 */
+  is_encrypted: boolean;
+  /** 创建时间 */
+  created_time: string;
+  /** 更新时间 */
+  updated_time: string;
+}
+
+/**
+ * 创建变量参数
+ */
+export interface VariableCreateParams {
+  /** 变量名称 */
+  name: string;
+  /** 变量值 */
+  value: any;
+  /** 变量作用域 */
+  scope: VariableScope | VariableScopeType;
+  /** 所属项目ID */
+  project_id?: number;
+  /** 所属环境ID */
+  environment_id?: number;
+  /** 所属用例ID */
+  case_id?: number;
+  /** 变量描述 */
+  description?: string;
+  /** 是否加密存储 */
+  is_encrypted?: boolean;
+}
+
+/**
+ * 变量查询参数
+ */
+export interface VariableQueryParams {
+  /** 变量作用域（必填） */
+  scope: VariableScope | VariableScopeType;
+  /** 所属项目ID */
+  project_id?: number;
+  /** 所属环境ID */
+  environment_id?: number;
+  /** 所属用例ID */
+  case_id?: number;
+  /** 变量名称（精确查询） */
+  name?: string;
+}
+
+/**
+ * 变量删除参数
+ */
+export interface VariableDeleteParams {
+  /** 变量名称 */
+  name: string;
+  /** 变量作用域 */
+  scope: VariableScope | VariableScopeType;
+  /** 所属项目ID */
+  project_id?: number;
+  /** 所属环境ID */
+  environment_id?: number;
+  /** 所属用例ID */
+  case_id?: number;
+}
+
+// ==================== 变量模板处理 ====================
+
+/**
+ * 处理变量模板参数
+ */
+export interface ProcessTemplateParams {
+  /** 模板字符串（包含变量引用，如：{{variable_name}}） */
+  template: string;
+  /** 项目ID */
+  project_id?: number;
+  /** 环境ID */
+  environment_id?: number;
+  /** 用例ID */
+  case_id?: number;
+  /** 临时变量（优先级最高） */
+  temp_variables?: Record<string, any>;
+}
+
+/**
+ * 处理变量模板结果
+ */
+export interface ProcessTemplateResult {
+  /** 处理后的结果字符串 */
+  result: string;
+}
+
+// ==================== 辅助类型 ====================
+
+/**
+ * 变量作用域选项（用于下拉选择）
+ */
+export interface VariableScopeOption {
+  label: string;
+  value: VariableScope | VariableScopeType;
+  description?: string;
+}
+
+/**
+ * 环境变量键值对
+ */
+export interface EnvironmentVariable {
+  key: string;
+  value: any;
+  description?: string;
+}

@@ -2,6 +2,9 @@
  * API测试模块接口导出
  */
 
+// 环境管理
+export * from './environment';
+
 // 项目管理
 export * from './project';
 
