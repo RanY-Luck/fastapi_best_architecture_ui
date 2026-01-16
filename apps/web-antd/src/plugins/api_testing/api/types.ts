@@ -356,7 +356,7 @@ export interface EnvironmentListParams {
   /** 环境名称（模糊查询） */
   name?: string;
   /** 状态筛选 */
-  status?: number;
+  status?: number; // 1-启用, 0-停用
 }
 
 // ==================== 变量管理 ====================

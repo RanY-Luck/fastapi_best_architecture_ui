@@ -64,7 +64,7 @@ const gridOptions: VxeTableGridOptions<Environment> = {
   proxyConfig: {
     ajax: {
       query: async ({ page }, formValues) => {
-        // 过滤掉空字符串和 null
+        // 1. 过滤掉空字符串、null 和 undefined
         // eslint-disable-next-line unicorn/no-array-reduce
         const filteredParams = Object.entries(formValues).reduce(
           (acc, [key, value]) => {
@@ -76,21 +76,15 @@ const gridOptions: VxeTableGridOptions<Environment> = {
           {},
         );
 
-        // 如果有 project_id，使用环境列表接口
-        if (filteredParams.project_id) {
-          const data = await getEnvironmentListApi(filteredParams.project_id);
-          return {
-            items: data,
-            total: data.length,
-            page: page.currentPage,
-            size: page.pageSize,
-          };
-        }
+        // 2. 直接调用接口，将过滤后的参数传给后端
+        // 后端现在支持：{ project_id?, name?, status? }
+        // 即使 filteredParams 为空对象，后端也会返回所有环境列表
+        const data = await getEnvironmentListApi(filteredParams);
 
-        // 否则返回空列表
+        // 3. 返回表格数据格式
         return {
-          items: [],
-          total: 0,
+          items: data,
+          total: data.length,
           page: page.currentPage,
           size: page.pageSize,
         };

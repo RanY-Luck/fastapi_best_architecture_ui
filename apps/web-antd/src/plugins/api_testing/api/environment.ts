@@ -1,6 +1,7 @@
 import type {
   Environment,
   EnvironmentCreateParams,
+  EnvironmentListParams,
   EnvironmentUpdateParams,
   ProcessTemplateParams,
   ProcessTemplateResult,
@@ -52,9 +53,11 @@ export async function deleteEnvironmentApi(id: number) {
 /**
  * 获取环境列表
  */
-export async function getEnvironmentListApi(projectId: number) {
-  return requestClient.get<Environment[]>(API_PREFIX, {
-    params: { project_id: projectId },
+export async function getEnvironmentListApi(
+  params: EnvironmentListParams = {},
+) {
+  return requestClient.get<Environment[]>(`${API_PREFIX}`, {
+    params,
   });
 }
 
