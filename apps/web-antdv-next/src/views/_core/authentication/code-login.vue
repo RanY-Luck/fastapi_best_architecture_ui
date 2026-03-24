@@ -7,7 +7,7 @@ import { computed, ref } from 'vue';
 import { AuthenticationCodeLogin, z } from '@vben/common-ui';
 import { $t } from '@vben/locales';
 
-import { notification } from 'ant-design-vue';
+import { notification } from 'antdv-next';
 
 import { sendSmsCodeApi } from '#/api';
 import { useAuthStore } from '#/store';
@@ -64,16 +64,16 @@ const formSchema = computed((): VbenFormSchema[] => {
 async function sendCode(phone: string) {
   if (!phone) {
     notification.error({
-      message: $t('authentication.error'),
       description: $t('authentication.mobileTip'),
+      title: $t('authentication.error'),
     });
     return false;
   }
   try {
     await sendSmsCodeApi(phone);
     notification.success({
-      message: $t('authentication.success'),
       description: $t('authentication.codeSent'),
+      title: $t('authentication.success'),
     });
     return true;
   } catch (error) {

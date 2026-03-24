@@ -1,0 +1,27 @@
+{
+  "apiTesting": {
+    "menu": "API Testing",
+    "dashboard": {
+      "title": "Dashboard"
+    },
+    "project": {
+      "title": "Projects"
+    },
+    "testcase": {
+      "title": "Test Cases"
+    },
+    "teststep": {
+      "title": "Test Steps"
+    },
+    "testreport": {
+      "title": "Test Reports",
+      "detailTitle": "Report Detail"
+    },
+    "environment": {
+      "title": "Environments"
+    },
+    "variable": {
+      "title": "Variables"
+    }
+  }
+}

@@ -1,0 +1,27 @@
+{
+  "apiTesting": {
+    "menu": "API测试",
+    "dashboard": {
+      "title": "测试仪表盘"
+    },
+    "project": {
+      "title": "项目管理"
+    },
+    "testcase": {
+      "title": "测试用例"
+    },
+    "teststep": {
+      "title": "测试步骤"
+    },
+    "testreport": {
+      "title": "测试报告",
+      "detailTitle": "报告详情"
+    },
+    "environment": {
+      "title": "环境管理"
+    },
+    "variable": {
+      "title": "变量管理"
+    }
+  }
+}
