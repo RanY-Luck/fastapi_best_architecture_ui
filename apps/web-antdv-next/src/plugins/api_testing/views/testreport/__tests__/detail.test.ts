@@ -174,4 +174,42 @@ describe('testreport detail page', () => {
     expect(wrapper.text()).toContain('Login smoke');
     expect(wrapper.text()).toContain('失败步骤');
   });
+
+  it('expands failed steps by default and keeps successful steps collapsed', async () => {
+    const wrapper = await mountDetailPageWithReport({
+      details: {
+        steps: [
+          {
+            duration: 12,
+            id: 1,
+            name: 'prepare token',
+            request_data: { method: 'GET', url: '/token' },
+            success: true,
+          },
+          {
+            duration: 21,
+            error_message: '500 error',
+            id: 2,
+            name: 'call login',
+            request_data: { method: 'POST', url: '/login' },
+            success: false,
+          },
+        ],
+      },
+    });
+
+    expect(wrapper.find('[data-test-id="step-body-2"]').exists()).toBe(true);
+    expect(wrapper.find('[data-test-id="step-error-2"]').text()).toContain(
+      '500 error',
+    );
+    expect(wrapper.find('[data-test-id="step-body-1"]').exists()).toBe(false);
+  });
+
+  it('renders a diagnostic empty state when no execution steps exist', async () => {
+    const wrapper = await mountDetailPageWithReport({
+      details: {},
+    });
+
+    expect(wrapper.text()).toContain('暂无可展示的步骤明细');
+  });
 });

@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 import type { TestReport } from '#/plugins/api_testing/api/types';
 
-import { computed, onMounted, ref } from 'vue';
+import { computed, onMounted, ref, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 
 import { Page, VbenButton } from '@vben/common-ui';
@@ -16,9 +16,12 @@ import {
 import {
   buildReportSummaryStats,
   formatDuration,
+  getInitialExpandedStepKeys,
+  normalizeExecutionSteps,
 } from './detail.helpers';
 import ReportHealthPanel from './components/report-health-panel.vue';
 import ReportSummaryCard from './components/report-summary-card.vue';
+import ReportStepTimeline from './components/report-step-timeline.vue';
 
 defineOptions({
   name: 'ApiTestingTestReportDetail',
@@ -29,6 +32,7 @@ const router = useRouter();
 
 const reportData = ref<null | TestReport>(null);
 const loading = ref(false);
+const expandedStepKeys = ref<string[]>([]);
 
 const summaryStats = computed(() => {
   return buildReportSummaryStats(reportData.value ?? {});
@@ -37,9 +41,16 @@ const summaryStats = computed(() => {
 const successRate = computed(() => summaryStats.value.successRate);
 
 const executionSteps = computed<any[]>(() => {
-  if (!reportData.value?.details?.steps) return [];
-  return reportData.value.details.steps;
+  return normalizeExecutionSteps(reportData.value?.details);
 });
+
+watch(
+  executionSteps,
+  (steps) => {
+    expandedStepKeys.value = getInitialExpandedStepKeys(steps);
+  },
+  { immediate: true },
+);
 
 async function fetchReportDetail() {
   const reportId = Number(route.params.id);
@@ -84,6 +95,27 @@ function handleBack() {
 
 function handleRefresh() {
   fetchReportDetail();
+}
+
+function expandAllSteps() {
+  expandedStepKeys.value = executionSteps.value.map((step) =>
+    String(step.id ?? step.name),
+  );
+}
+
+function expandFailureSteps() {
+  expandedStepKeys.value = getInitialExpandedStepKeys(executionSteps.value);
+}
+
+function toggleStep(stepKey: string) {
+  if (expandedStepKeys.value.includes(stepKey)) {
+    expandedStepKeys.value = expandedStepKeys.value.filter(
+      (key) => key !== stepKey,
+    );
+    return;
+  }
+
+  expandedStepKeys.value = [...expandedStepKeys.value, stepKey];
 }
 
 onMounted(() => {
@@ -206,85 +238,13 @@ onMounted(() => {
           </div>
           <div class="text-sm text-slate-500">成功率 {{ successRate }}%</div>
         </div>
-        <div v-if="executionSteps.length > 0" class="space-y-4">
-          <div
-            v-for="(step, index) in executionSteps"
-            :key="index"
-            class="rounded border p-4"
-          >
-            <div class="flex items-center justify-between">
-              <h4 class="font-medium">{{ step.name }}</h4>
-              <div class="flex items-center space-x-2">
-                <Tag :color="step.success ? 'success' : 'error'">
-                  {{ step.success ? '成功' : '失败' }}
-                </Tag>
-                <span class="text-sm text-gray-500">{{ step.duration }}ms</span>
-              </div>
-            </div>
-
-            <div class="mt-2 text-sm">
-              <span class="font-medium">请求：</span>
-              <Tag>{{ step.request_data?.method || 'N/A' }}</Tag>
-              <span class="text-gray-600">{{ step.request_data?.url || step.url }}</span>
-            </div>
-
-            <div v-if="step.response?.status_code" class="mt-2 text-sm">
-              <span class="font-medium">状态码：</span>
-              <Tag
-                :color="
-                  step.response.status_code >= 200 && step.response.status_code < 300
-                    ? 'success'
-                    : 'error'
-                "
-              >
-                {{ step.response.status_code }}
-              </Tag>
-            </div>
-
-            <div class="mt-2 text-sm text-gray-500">
-              <span class="font-medium">开始时间：</span>
-              {{ new Date(step.start_time).toLocaleString() }}
-              <span class="ml-4 font-medium">结束时间：</span>
-              {{ new Date(step.end_time).toLocaleString() }}
-            </div>
-
-            <div v-if="step.assertions?.length" class="mt-2 text-sm">
-              <span class="font-medium">断言结果：</span>
-              <div class="mt-1 space-y-1">
-                <div
-                  v-for="(assertion, aIndex) in step.assertions"
-                  :key="aIndex"
-                  class="flex items-center space-x-2"
-                >
-                  <Tag :color="assertion.success ? 'success' : 'error'">
-                    {{ assertion.success ? '通过' : '失败' }}
-                  </Tag>
-                  <span>{{ assertion.description || '断言检查' }}</span>
-                </div>
-              </div>
-            </div>
-
-            <details v-if="step.response" class="mt-2 text-sm">
-              <summary class="cursor-pointer font-medium">响应数据</summary>
-              <div class="mt-2 space-y-2">
-                <div v-if="step.response.headers">
-                  <div class="font-medium">响应头:</div>
-                  <pre class="mt-1 max-h-32 overflow-auto rounded bg-gray-50 p-2 text-xs">{{ JSON.stringify(step.response.headers, null, 2) }}</pre>
-                </div>
-                <div v-if="step.response.json || step.response.text">
-                  <div class="font-medium">响应体:</div>
-                  <pre class="mt-1 max-h-40 overflow-auto rounded bg-gray-50 p-2 text-xs">{{ step.response.json ? JSON.stringify(step.response.json, null, 2) : step.response.text }}</pre>
-                </div>
-              </div>
-            </details>
-
-            <details v-if="step.request_data" class="mt-2 text-sm">
-              <summary class="cursor-pointer font-medium">请求数据</summary>
-              <pre class="mt-2 max-h-40 overflow-auto rounded bg-gray-50 p-2 text-xs">{{ JSON.stringify(step.request_data, null, 2) }}</pre>
-            </details>
-          </div>
-        </div>
-        <div v-else class="py-8 text-center text-gray-500">暂无执行详情数据</div>
+        <ReportStepTimeline
+          :expanded-keys="expandedStepKeys"
+          :steps="executionSteps"
+          @expand-all="expandAllSteps"
+          @expand-failures="expandFailureSteps"
+          @toggle-step="toggleStep"
+        />
       </Card>
     </div>
 
