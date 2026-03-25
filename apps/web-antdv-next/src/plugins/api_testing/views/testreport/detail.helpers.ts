@@ -8,7 +8,16 @@ interface ReportSummaryInput {
 
 interface StepExpansionInput {
   id?: number | string;
+  name?: string;
   success?: boolean;
+}
+
+interface ReportSummaryStats {
+  durationText: string;
+  failedSteps: number;
+  statusText: '失败' | '成功';
+  statusTone: 'error' | 'success';
+  successRate: number;
 }
 
 export function formatDuration(duration = 0) {
@@ -31,7 +40,9 @@ export function getInitialExpandedStepKeys(steps: StepExpansionInput[]) {
     .map((step) => String(step.id ?? ''));
 }
 
-export function buildReportSummaryStats(report: ReportSummaryInput) {
+export function buildReportSummaryStats(
+  report: ReportSummaryInput,
+): ReportSummaryStats {
   const totalSteps = report.total_steps ?? 0;
   const successSteps = report.success_steps ?? 0;
 

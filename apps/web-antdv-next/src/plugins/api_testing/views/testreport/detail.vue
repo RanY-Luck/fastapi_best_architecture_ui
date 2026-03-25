@@ -15,7 +15,6 @@ import {
 
 import {
   buildReportSummaryStats,
-  formatDuration,
   getInitialExpandedStepKeys,
   normalizeExecutionSteps,
 } from './detail.helpers';
@@ -129,7 +128,7 @@ onMounted(() => {
       <RefreshCw class="size-8 animate-spin" />
     </div>
 
-    <div v-else-if="reportData" class="space-y-6">
+    <div v-else-if="reportData" class="space-y-6 pb-6">
       <div class="flex flex-col justify-between gap-4 xl:flex-row xl:items-start">
         <div class="flex items-start space-x-4">
           <VbenButton @click="handleBack">
@@ -183,17 +182,17 @@ onMounted(() => {
 
       <Card title="执行元信息">
         <div class="grid gap-3 text-sm md:grid-cols-2 xl:grid-cols-4">
-          <div class="rounded-xl border border-slate-200 px-4 py-3">
+          <div class="rounded-xl border border-slate-200 bg-white/80 px-4 py-3 shadow-sm shadow-slate-200/60">
             <span class="text-xs font-medium uppercase tracking-[0.14em] text-slate-500">报告名称</span>
             <div class="mt-2 font-medium text-slate-900">{{ reportData.name }}</div>
           </div>
-          <div class="rounded-xl border border-slate-200 px-4 py-3">
+          <div class="rounded-xl border border-slate-200 bg-white/80 px-4 py-3 shadow-sm shadow-slate-200/60">
             <span class="text-xs font-medium uppercase tracking-[0.14em] text-slate-500">测试用例</span>
             <div class="mt-2 font-medium text-slate-900">
               {{ reportData.test_case_name || '未知' }}
             </div>
           </div>
-          <div class="rounded-xl border border-slate-200 px-4 py-3">
+          <div class="rounded-xl border border-slate-200 bg-white/80 px-4 py-3 shadow-sm shadow-slate-200/60">
             <span class="text-xs font-medium uppercase tracking-[0.14em] text-slate-500">执行结果</span>
             <div class="mt-2">
               <Tag :color="reportData.success ? 'success' : 'error'">
@@ -201,27 +200,27 @@ onMounted(() => {
               </Tag>
             </div>
           </div>
-          <div class="rounded-xl border border-slate-200 px-4 py-3">
+          <div class="rounded-xl border border-slate-200 bg-white/80 px-4 py-3 shadow-sm shadow-slate-200/60">
             <span class="text-xs font-medium uppercase tracking-[0.14em] text-slate-500">失败步骤</span>
             <div class="mt-2 font-medium text-slate-900">{{ reportData.fail_steps }}</div>
           </div>
-          <div class="rounded-xl border border-slate-200 px-4 py-3">
+          <div class="rounded-xl border border-slate-200 bg-white/80 px-4 py-3 shadow-sm shadow-slate-200/60">
             <span class="text-xs font-medium uppercase tracking-[0.14em] text-slate-500">开始时间</span>
             <div class="mt-2 font-medium text-slate-900">
               {{ new Date(reportData.start_time).toLocaleString() }}
             </div>
           </div>
-          <div class="rounded-xl border border-slate-200 px-4 py-3">
+          <div class="rounded-xl border border-slate-200 bg-white/80 px-4 py-3 shadow-sm shadow-slate-200/60">
             <span class="text-xs font-medium uppercase tracking-[0.14em] text-slate-500">结束时间</span>
             <div class="mt-2 font-medium text-slate-900">
               {{ new Date(reportData.end_time).toLocaleString() }}
             </div>
           </div>
-          <div class="rounded-xl border border-slate-200 px-4 py-3">
+          <div class="rounded-xl border border-slate-200 bg-white/80 px-4 py-3 shadow-sm shadow-slate-200/60">
             <span class="text-xs font-medium uppercase tracking-[0.14em] text-slate-500">总步骤</span>
             <div class="mt-2 font-medium text-slate-900">{{ reportData.total_steps }}</div>
           </div>
-          <div class="rounded-xl border border-slate-200 px-4 py-3">
+          <div class="rounded-xl border border-slate-200 bg-white/80 px-4 py-3 shadow-sm shadow-slate-200/60">
             <span class="text-xs font-medium uppercase tracking-[0.14em] text-slate-500">执行时长</span>
             <div class="mt-2 font-medium text-slate-900">{{ summaryStats.durationText }}</div>
           </div>

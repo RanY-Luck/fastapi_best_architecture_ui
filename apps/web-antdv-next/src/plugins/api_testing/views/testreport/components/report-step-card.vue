@@ -24,7 +24,12 @@ const requestSummary = computed(() => {
 
 <template>
   <div
-    class="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm"
+    class="rounded-2xl border p-4 shadow-sm shadow-slate-200/70"
+    :class="
+      step.success
+        ? 'border-slate-200/80 bg-[linear-gradient(180deg,#ffffff_0%,#f8fafc_100%)]'
+        : 'border-rose-200 bg-[linear-gradient(180deg,#fffaf9_0%,#fff1f2_100%)]'
+    "
     :data-state="step.success ? 'success' : 'error'"
     :data-test-id="`step-card-${stepKey}`"
   >
@@ -53,7 +58,7 @@ const requestSummary = computed(() => {
 
     <div
       v-if="expanded"
-      class="mt-4 space-y-4 border-t border-slate-100 pt-4"
+      class="mt-4 space-y-4 border-t border-slate-200/80 pt-4"
       :data-test-id="`step-body-${stepKey}`"
     >
       <div
@@ -65,7 +70,7 @@ const requestSummary = computed(() => {
       </div>
 
       <div class="grid gap-3 md:grid-cols-2">
-        <div class="rounded-xl border border-slate-200 px-3 py-3 text-sm">
+        <div class="rounded-xl border border-slate-200 bg-white/80 px-3 py-3 text-sm">
           <div class="text-xs font-medium uppercase tracking-[0.14em] text-slate-500">
             概览
           </div>
@@ -78,7 +83,7 @@ const requestSummary = computed(() => {
 
         <div
           v-if="Array.isArray(step.assertions) && step.assertions.length > 0"
-          class="rounded-xl border border-slate-200 px-3 py-3 text-sm"
+          class="rounded-xl border border-slate-200 bg-white/80 px-3 py-3 text-sm"
         >
           <div class="text-xs font-medium uppercase tracking-[0.14em] text-slate-500">
             断言

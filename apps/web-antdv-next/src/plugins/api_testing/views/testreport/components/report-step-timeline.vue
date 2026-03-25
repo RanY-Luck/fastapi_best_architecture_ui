@@ -35,7 +35,7 @@ defineEmits<{
       </div>
     </div>
 
-    <div v-if="steps.length === 0" class="rounded-2xl border border-dashed border-slate-300 bg-slate-50 px-6 py-10 text-center text-sm text-slate-500">
+    <div v-if="steps.length === 0" class="rounded-2xl border border-dashed border-slate-300 bg-[linear-gradient(180deg,#f8fafc_0%,#f1f5f9_100%)] px-6 py-10 text-center text-sm text-slate-500">
       暂无可展示的步骤明细
     </div>
 

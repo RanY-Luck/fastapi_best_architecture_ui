@@ -13,7 +13,7 @@ const failureRate = props.totalSteps
 
 <template>
   <div
-    class="rounded-2xl border border-slate-200 bg-slate-950 px-5 py-4 text-slate-50 shadow-sm"
+    class="rounded-2xl border border-slate-900 bg-[radial-gradient(circle_at_top_left,#1e293b_0%,#0f172a_48%,#020617_100%)] px-5 py-4 text-slate-50 shadow-lg shadow-slate-900/20"
     data-test-id="report-health-panel"
   >
     <div class="flex items-center justify-between gap-3">
@@ -30,9 +30,9 @@ const failureRate = props.totalSteps
         <div>失败占比 {{ failureRate }}%</div>
       </div>
     </div>
-    <div class="mt-4 h-2 overflow-hidden rounded-full bg-slate-800">
+    <div class="mt-4 h-2 overflow-hidden rounded-full bg-slate-800/80">
       <div
-        class="h-full rounded-full bg-emerald-400"
+        class="h-full rounded-full bg-[linear-gradient(90deg,#34d399_0%,#22c55e_100%)]"
         :style="{ width: `${successRate}%` }"
       />
     </div>

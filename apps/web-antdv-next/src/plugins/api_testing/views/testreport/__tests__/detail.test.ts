@@ -212,4 +212,44 @@ describe('testreport detail page', () => {
 
     expect(wrapper.text()).toContain('暂无可展示的步骤明细');
   });
+
+  it('omits empty request and response blocks when step payloads are missing', async () => {
+    const wrapper = await mountDetailPageWithReport({
+      details: {
+        steps: [
+          {
+            error_message: 'timeout',
+            id: 2,
+            name: 'health check',
+            success: false,
+          },
+        ],
+      },
+    });
+
+    expect(wrapper.text()).not.toContain('请求数据');
+    expect(wrapper.text()).not.toContain('响应数据');
+  });
+
+  it('renders bounded diagnostic code blocks for payload sections', async () => {
+    const wrapper = await mountDetailPageWithReport({
+      details: {
+        steps: [
+          {
+            id: 2,
+            name: 'health check',
+            request_data: { method: 'GET', url: '/health' },
+            response: {
+              json: { ok: true },
+            },
+            success: false,
+          },
+        ],
+      },
+    });
+
+    const codeBlocks = wrapper.findAll('[data-test-id="report-code-block"]');
+    expect(codeBlocks.length).toBe(2);
+    expect(codeBlocks[0]?.find('pre').classes()).toContain('max-h-72');
+  });
 });
