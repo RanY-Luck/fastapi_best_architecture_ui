@@ -7,6 +7,10 @@ import { getAllEnabledApiProjectsApi } from '#/plugins/api_testing/api/project';
 import { getAllEnabledTestCasesApi } from '#/plugins/api_testing/api/testcase';
 import { CodeMirror } from '#/plugins/api_testing/components/CodeMirror';
 
+function formatDateTime(value?: string) {
+  return value ? new Date(value).toLocaleString() : '';
+}
+
 // 变量作用域选项
 export const variableScopeOptions = [
   { label: '全局变量', value: 'global' },
@@ -290,16 +294,8 @@ export function useColumns(
       title: $t('common.table.created_time'),
       field: 'created_time',
       width: 180,
-      formatter: ({ cellValue }) => {
-        return cellValue ? new Date(cellValue).toLocaleString() : '';
-      },
-    },
-    {
-      title: $t('common.table.updated_time'),
-      field: 'updated_time',
-      width: 180,
-      formatter: ({ cellValue }) => {
-        return cellValue ? new Date(cellValue).toLocaleString() : '';
+      formatter: ({ row }) => {
+        return formatDateTime(row.created_time || row.create_time);
       },
     },
     {
@@ -333,3 +329,4 @@ export function useColumns(
     },
   ];
 }
+

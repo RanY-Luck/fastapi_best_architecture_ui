@@ -304,7 +304,8 @@ export interface EnvironmentListParams {
 
 export interface Variable {
   case_id?: number;
-  created_time: string;
+  create_time?: string;
+  created_time?: string;
   description?: string;
   environment_id?: number;
   id: number;
@@ -312,18 +313,23 @@ export interface Variable {
   name: string;
   project_id?: number;
   scope: VariableScope | VariableScopeType;
-  updated_time: string;
+  update_time?: string;
+  updated_time?: string;
   value: unknown;
 }
 
 export interface VariableCreateParams {
   case_id?: number;
+  create_time?: string;
+  created_time?: string;
   description?: string;
   environment_id?: number;
   is_encrypted?: boolean;
   name: string;
   project_id?: number;
   scope: VariableScope | VariableScopeType;
+  update_time?: string;
+  updated_time?: string;
   value: unknown;
 }
 

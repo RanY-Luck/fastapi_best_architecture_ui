@@ -77,7 +77,6 @@ const gridOptions: VxeTableGridOptions<Variable> = {
       query: async ({ page }, formValues) => {
         const filteredParams = filterEmptyParams(formValues) as Partial<VariableQueryParams>;
 
-        // 必须有 scope 参数
         if (!filteredParams.scope) {
           return buildLocalPageResult([], page.currentPage, page.pageSize);
         }
@@ -91,15 +90,14 @@ const gridOptions: VxeTableGridOptions<Variable> = {
 
 const [Grid, gridApi] = useVbenVxeGrid({ formOptions, gridOptions });
 
-// 创建/编辑变量表单
 const [VariableForm, variableFormApi] = useVbenForm({
   schema: variableFormSchema,
   showDefaultActions: false,
 });
 
-// 转换表单数据
 const transformFormData = (
   formValues: Record<string, unknown>,
+  originalVariable?: null | Variable,
 ): VariableCreateParams => {
   const data: VariableCreateParams = {
     description: formValues.description as string | undefined,
@@ -109,7 +107,6 @@ const transformFormData = (
     value: parseJsonInputOrRaw(formValues.value) ?? '',
   };
 
-  // 根据作用域添加相应的ID
   if (
     typeof formValues.scope === 'string' &&
     ['case', 'environment', 'project'].includes(formValues.scope)
@@ -123,10 +120,16 @@ const transformFormData = (
     data.case_id = formValues.case_id as number | undefined;
   }
 
+  if (originalVariable) {
+    data.create_time = originalVariable.create_time;
+    data.created_time = originalVariable.created_time;
+    data.update_time = originalVariable.update_time;
+    data.updated_time = new Date().toISOString();
+  }
+
   return data;
 };
 
-// 转换响应数据为表单格式
 const transformResponseToForm = (data: Variable) => {
   return {
     name: data.name,
@@ -140,7 +143,6 @@ const transformResponseToForm = (data: Variable) => {
   };
 };
 
-// 创建变量模态框
 const [CreateModal, createModalApi] = useVbenModal({
   closeOnClickModal: false,
   title: '创建变量',
@@ -171,7 +173,6 @@ const [CreateModal, createModalApi] = useVbenModal({
   },
   onOpenChange: (isOpen) => {
     if (isOpen) {
-      // 如果从环境管理页面跳转过来，自动填充相关信息
       const environmentId = getRouteQueryNumber(route.query.environment_id);
       const projectId = getRouteQueryNumber(route.query.project_id);
       if (environmentId && projectId) {
@@ -189,7 +190,6 @@ const [CreateModal, createModalApi] = useVbenModal({
   },
 });
 
-// 编辑变量（注意：变量是通过 name + scope 等组合唯一标识的，不是 id）
 const editingVariable = ref<null | Variable>(null);
 const [EditModal, editModalApi] = useVbenModal({
   closeOnClickModal: false,
@@ -202,9 +202,8 @@ const [EditModal, editModalApi] = useVbenModal({
         return false;
       }
       const values = await variableFormApi.getValues();
-      const requestData = transformFormData(values);
+      const requestData = transformFormData(values, editingVariable.value);
 
-      // 先删除旧变量
       await deleteVariableApi({
         name: editingVariable.value.name,
         scope: editingVariable.value.scope,
@@ -213,7 +212,6 @@ const [EditModal, editModalApi] = useVbenModal({
         case_id: editingVariable.value.case_id,
       } satisfies VariableDeleteParams);
 
-      // 再创建新变量
       await createVariableApi(requestData);
       message.success('变量更新成功');
       onRefresh();
@@ -237,7 +235,6 @@ const [EditModal, editModalApi] = useVbenModal({
   },
 });
 
-// 操作处理
 function onActionClick({ code, row }: OnActionClickParams<Variable>) {
   switch (code) {
     case 'delete': {
@@ -263,22 +260,18 @@ function onActionClick({ code, row }: OnActionClickParams<Variable>) {
   }
 }
 
-// 刷新表格
 function onRefresh() {
   gridApi.query();
 }
 
-// 创建变量
 function handleCreate() {
   createModalApi.open();
 }
 
-// 初始化时如果有environment_id参数，设置到查询表单中
 onMounted(() => {
   const environmentId = getRouteQueryNumber(route.query.environment_id);
   const projectId = getRouteQueryNumber(route.query.project_id);
   if (environmentId && projectId) {
-    // 设置查询表单的默认值
     gridApi.query({
       scope: 'environment',
       environment_id: environmentId,
@@ -299,14 +292,15 @@ onMounted(() => {
       </template>
     </Grid>
 
-    <!-- 创建变量模态框 -->
     <CreateModal>
       <VariableForm />
     </CreateModal>
 
-    <!-- 编辑变量模态框 -->
     <EditModal>
       <VariableForm />
     </EditModal>
   </Page>
 </template>
+
+
+
