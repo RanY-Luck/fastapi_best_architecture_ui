@@ -6,12 +6,19 @@ import { useRoute, useRouter } from 'vue-router';
 
 import { Page, VbenButton } from '@vben/common-ui';
 import { ArrowLeft, Download, RefreshCw } from '@vben/icons';
-import { Card, Col, message, Progress, Row, Statistic, Tag } from 'antdv-next';
+import { Card, message, Tag } from 'antdv-next';
 
 import {
   exportTestReportApi,
   getTestReportDetailApi,
 } from '#/plugins/api_testing/api/testreport';
+
+import {
+  buildReportSummaryStats,
+  formatDuration,
+} from './detail.helpers';
+import ReportHealthPanel from './components/report-health-panel.vue';
+import ReportSummaryCard from './components/report-summary-card.vue';
 
 defineOptions({
   name: 'ApiTestingTestReportDetail',
@@ -23,23 +30,16 @@ const router = useRouter();
 const reportData = ref<null | TestReport>(null);
 const loading = ref(false);
 
-const successRate = computed(() => {
-  if (!reportData.value || reportData.value.total_steps === 0) return 0;
-  return Math.round(
-    (reportData.value.success_steps / reportData.value.total_steps) * 100,
-  );
+const summaryStats = computed(() => {
+  return buildReportSummaryStats(reportData.value ?? {});
 });
+
+const successRate = computed(() => summaryStats.value.successRate);
 
 const executionSteps = computed<any[]>(() => {
   if (!reportData.value?.details?.steps) return [];
   return reportData.value.details.steps;
 });
-
-const formatDuration = (duration: number) => {
-  if (duration < 1000) return `${duration}ms`;
-  if (duration < 60_000) return `${(duration / 1000).toFixed(1)}s`;
-  return `${(duration / 60_000).toFixed(1)}min`;
-};
 
 async function fetchReportDetail() {
   const reportId = Number(route.params.id);
@@ -98,13 +98,26 @@ onMounted(() => {
     </div>
 
     <div v-else-if="reportData" class="space-y-6">
-      <div class="flex items-center justify-between">
-        <div class="flex items-center space-x-4">
+      <div class="flex flex-col justify-between gap-4 xl:flex-row xl:items-start">
+        <div class="flex items-start space-x-4">
           <VbenButton @click="handleBack">
             <ArrowLeft class="mr-1 size-4" />
             返回
           </VbenButton>
-          <h1 class="text-2xl font-bold">{{ reportData.name }}</h1>
+          <div class="space-y-2">
+            <div class="flex items-center gap-3">
+              <h1 class="text-2xl font-bold">{{ reportData.name }}</h1>
+              <Tag :color="reportData.success ? 'success' : 'error'">
+                {{ summaryStats.statusText }}
+              </Tag>
+            </div>
+            <p class="text-sm text-slate-500">
+              {{ reportData.test_case_name || '未知用例' }} ·
+              {{ new Date(reportData.start_time).toLocaleString() }} -
+              {{ new Date(reportData.end_time).toLocaleString() }} ·
+              {{ summaryStats.durationText }}
+            </p>
+          </div>
         </div>
         <div class="flex space-x-2">
           <VbenButton @click="handleRefresh">
@@ -118,84 +131,81 @@ onMounted(() => {
         </div>
       </div>
 
-      <Row :gutter="16">
-        <Col :span="6">
-          <Card>
-            <Statistic
-              title="执行结果"
-              :value="reportData.success ? '成功' : '失败'"
-              :value-style="{ color: reportData.success ? '#3f8600' : '#cf1322' }"
-            />
-          </Card>
-        </Col>
-        <Col :span="6">
-          <Card>
-            <Statistic title="总步骤数" :value="reportData.total_steps" />
-          </Card>
-        </Col>
-        <Col :span="6">
-          <Card>
-            <Statistic
-              title="成功率"
-              :value="successRate"
-              suffix="%"
-              :value-style="{
-                color:
-                  successRate >= 80
-                    ? '#3f8600'
-                    : successRate >= 60
-                      ? '#faad14'
-                      : '#cf1322',
-              }"
-            />
-          </Card>
-        </Col>
-        <Col :span="6">
-          <Card>
-            <Statistic title="执行时长" :value="formatDuration(reportData.duration)" />
-          </Card>
-        </Col>
-      </Row>
+      <section class="grid gap-4 xl:grid-cols-[repeat(4,minmax(0,1fr))]">
+        <ReportSummaryCard
+          label="执行结果"
+          :tone="summaryStats.statusTone"
+          :value="summaryStats.statusText"
+        />
+        <ReportSummaryCard label="成功率" :value="`${successRate}%`" />
+        <ReportSummaryCard label="失败步骤" :value="summaryStats.failedSteps" />
+        <ReportSummaryCard label="执行时长" :value="summaryStats.durationText" />
+      </section>
 
-      <Card title="基本信息">
-        <div class="grid grid-cols-2 gap-4 text-sm">
-          <div><span class="font-medium">报告名称：</span>{{ reportData.name }}</div>
-          <div><span class="font-medium">测试用例：</span>{{ reportData.test_case_name || '未知' }}</div>
-          <div>
-            <span class="font-medium">执行结果：</span>
-            <Tag :color="reportData.success ? 'success' : 'error'">
-              {{ reportData.success ? '成功' : '失败' }}
-            </Tag>
+      <ReportHealthPanel
+        :fail-steps="reportData.fail_steps"
+        :success-rate="successRate"
+        :success-steps="reportData.success_steps"
+        :total-steps="reportData.total_steps"
+      />
+
+      <Card title="执行元信息">
+        <div class="grid gap-3 text-sm md:grid-cols-2 xl:grid-cols-4">
+          <div class="rounded-xl border border-slate-200 px-4 py-3">
+            <span class="text-xs font-medium uppercase tracking-[0.14em] text-slate-500">报告名称</span>
+            <div class="mt-2 font-medium text-slate-900">{{ reportData.name }}</div>
           </div>
-          <div>
-            <span class="mb-1 block font-medium">成功率：</span>
-            <Progress
-              :percent="successRate"
-              :status="
-                successRate >= 80
-                  ? 'success'
-                  : successRate >= 60
-                    ? 'normal'
-                    : 'exception'
-              "
-            />
+          <div class="rounded-xl border border-slate-200 px-4 py-3">
+            <span class="text-xs font-medium uppercase tracking-[0.14em] text-slate-500">测试用例</span>
+            <div class="mt-2 font-medium text-slate-900">
+              {{ reportData.test_case_name || '未知' }}
+            </div>
           </div>
-          <div><span class="font-medium">总步骤数：</span>{{ reportData.total_steps }}</div>
-          <div>
-            <span class="font-medium">成功步骤数：</span>
-            <Tag color="success">{{ reportData.success_steps }}</Tag>
+          <div class="rounded-xl border border-slate-200 px-4 py-3">
+            <span class="text-xs font-medium uppercase tracking-[0.14em] text-slate-500">执行结果</span>
+            <div class="mt-2">
+              <Tag :color="reportData.success ? 'success' : 'error'">
+                {{ summaryStats.statusText }}
+              </Tag>
+            </div>
           </div>
-          <div>
-            <span class="font-medium">失败步骤数：</span>
-            <Tag :color="reportData.fail_steps > 0 ? 'error' : 'default'">{{ reportData.fail_steps }}</Tag>
+          <div class="rounded-xl border border-slate-200 px-4 py-3">
+            <span class="text-xs font-medium uppercase tracking-[0.14em] text-slate-500">失败步骤</span>
+            <div class="mt-2 font-medium text-slate-900">{{ reportData.fail_steps }}</div>
           </div>
-          <div><span class="font-medium">执行时长：</span>{{ formatDuration(reportData.duration) }}</div>
-          <div><span class="font-medium">开始时间：</span>{{ new Date(reportData.start_time).toLocaleString() }}</div>
-          <div><span class="font-medium">结束时间：</span>{{ new Date(reportData.end_time).toLocaleString() }}</div>
+          <div class="rounded-xl border border-slate-200 px-4 py-3">
+            <span class="text-xs font-medium uppercase tracking-[0.14em] text-slate-500">开始时间</span>
+            <div class="mt-2 font-medium text-slate-900">
+              {{ new Date(reportData.start_time).toLocaleString() }}
+            </div>
+          </div>
+          <div class="rounded-xl border border-slate-200 px-4 py-3">
+            <span class="text-xs font-medium uppercase tracking-[0.14em] text-slate-500">结束时间</span>
+            <div class="mt-2 font-medium text-slate-900">
+              {{ new Date(reportData.end_time).toLocaleString() }}
+            </div>
+          </div>
+          <div class="rounded-xl border border-slate-200 px-4 py-3">
+            <span class="text-xs font-medium uppercase tracking-[0.14em] text-slate-500">总步骤</span>
+            <div class="mt-2 font-medium text-slate-900">{{ reportData.total_steps }}</div>
+          </div>
+          <div class="rounded-xl border border-slate-200 px-4 py-3">
+            <span class="text-xs font-medium uppercase tracking-[0.14em] text-slate-500">执行时长</span>
+            <div class="mt-2 font-medium text-slate-900">{{ summaryStats.durationText }}</div>
+          </div>
         </div>
       </Card>
 
       <Card title="执行详情">
+        <div class="mb-4 flex items-center justify-between">
+          <div class="text-sm text-slate-500">
+            失败步骤
+            <Tag :color="reportData.success ? 'success' : 'error'">
+              {{ reportData.fail_steps }}
+            </Tag>
+          </div>
+          <div class="text-sm text-slate-500">成功率 {{ successRate }}%</div>
+        </div>
         <div v-if="executionSteps.length > 0" class="space-y-4">
           <div
             v-for="(step, index) in executionSteps"
