@@ -6,8 +6,11 @@ import type {
   VxeTableGridOptions,
 } from '#/adapter/vxe-table';
 import type {
+  TestExecutionResult,
   TestStep,
   TestStepCreateParams,
+  TestStepParams,
+  TestStepUpdateParams,
 } from '#/plugins/api_testing/api/types';
 
 import { onMounted, ref } from 'vue';
@@ -28,6 +31,12 @@ import {
   getTestStepListApi,
   updateTestStepApi,
 } from '#/plugins/api_testing/api/teststep';
+import {
+  filterEmptyParams,
+  getRouteQueryNumber,
+  parseJsonInput,
+  stringifyJsonInput,
+} from '#/plugins/api_testing/utils';
 
 import { querySchema, testStepFormSchema, useColumns } from './data';
 
@@ -36,6 +45,16 @@ defineOptions({
 });
 
 const route = useRoute();
+const testStepJsonFields = [
+  'auth',
+  'body',
+  'extract',
+  'files',
+  'headers',
+  'params',
+  'sql_queries',
+  'validations',
+] as const;
 
 // 表单配置
 const formOptions: VbenFormProps = {
@@ -68,23 +87,10 @@ const gridOptions: VxeTableGridOptions<TestStep> = {
   proxyConfig: {
     ajax: {
       query: async ({ page }, formValues) => {
-        // 过滤掉空字符串和 null
-        // eslint-disable-next-line unicorn/no-array-reduce
-        const filteredParams = Object.entries(formValues).reduce<
-          Record<string, any>
-        >(
-          (acc, [key, value]) => {
-            if (value !== '' && value !== null && value !== undefined) {
-              acc[key] = value;
-            }
-            return acc;
-          },
-          {}, // 初始值
-        );
         return await getTestStepListApi({
           page: page.currentPage,
           size: page.pageSize,
-          ...filteredParams,
+          ...(filterEmptyParams(formValues) as TestStepParams),
         });
       },
     },
@@ -101,37 +107,24 @@ const [TestStepForm, testStepFormApi] = useVbenForm({
 });
 
 // 通用转换函数
-const transformFormToRequest = (formValues: any): TestStepCreateParams => {
-  const parseJSON = (value: any) => {
-    if (!value || value === '') return undefined;
-    if (typeof value === 'string') {
-      try {
-        return JSON.parse(value);
-      } catch {
-        return undefined;
-      }
-    }
-    return value;
-  };
+const transformFormToRequest = (
+  formValues: Record<string, unknown>,
+): TestStepCreateParams => {
+  const jsonFields = Object.fromEntries(
+    testStepJsonFields.map((field) => [field, parseJsonInput(formValues[field])]),
+  );
 
   return {
-    name: formValues.name,
+    ...jsonFields,
+    method: String(formValues.method ?? ''),
+    name: String(formValues.name ?? ''),
+    order: Number(formValues.order ?? 0),
+    retry: Number(formValues.retry ?? 0),
+    retry_interval: Number(formValues.retry_interval ?? 0),
+    status: Number(formValues.status ?? 0),
     test_case_id: Number(formValues.test_case_id),
-    url: formValues.url,
-    method: formValues.method,
-    headers: parseJSON(formValues.headers),
-    params: parseJSON(formValues.params),
-    body: parseJSON(formValues.body),
-    files: parseJSON(formValues.files),
-    auth: parseJSON(formValues.auth),
-    extract: parseJSON(formValues.extract),
-    validations: parseJSON(formValues.validations),
-    sql_queries: parseJSON(formValues.sql_queries),
-    timeout: formValues.timeout,
-    retry: formValues.retry,
-    retry_interval: formValues.retry_interval,
-    order: formValues.order,
-    status: formValues.status,
+    timeout: Number(formValues.timeout ?? 0),
+    url: String(formValues.url ?? ''),
   };
 };
 
@@ -163,9 +156,9 @@ const [CreateModal, createModalApi] = useVbenModal({
   },
   onOpenChange: (isOpen) => {
     if (isOpen) {
-      const testCaseId = route.query.test_case_id;
+      const testCaseId = getRouteQueryNumber(route.query.test_case_id);
       if (testCaseId) {
-        testStepFormApi.setValues({ test_case_id: Number(testCaseId) });
+        testStepFormApi.setValues({ test_case_id: testCaseId });
       }
     } else {
       testStepFormApi.resetForm();
@@ -187,8 +180,8 @@ const [EditModal, editModalApi] = useVbenModal({
       }
       const values = await testStepFormApi.getValues();
       if (values && Object.keys(values).length > 0) {
-        const UpdateRequestData = transformFormToRequest(values);
-        await updateTestStepApi(editingStepId.value, UpdateRequestData);
+        const requestData = transformFormToRequest(values) as TestStepUpdateParams;
+        await updateTestStepApi(editingStepId.value, requestData);
         message.success('测试步骤更新成功');
         onRefresh();
         await editModalApi.close();
@@ -209,7 +202,7 @@ const [EditModal, editModalApi] = useVbenModal({
 });
 
 // 执行结果模态框
-const executionResult = ref<any>(null);
+const executionResult = ref<null | TestExecutionResult>(null);
 const [ResultModal, resultModalApi] = useVbenModal({
   title: '执行结果',
   class: 'w-[800px]',
@@ -221,11 +214,11 @@ function onActionClick({ code, row }: OnActionClickParams<TestStep>) {
   switch (code) {
     case 'copy': {
       const copyData = { ...row };
-      delete (copyData as any).id;
+      delete (copyData as Partial<TestStep>).id;
       copyData.name = `${copyData.name}_副本`;
       copyData.order = copyData.order + 1;
       // 转换对象为字符串格式
-      const formData = transformResponseToForm(copyData);
+      const formData = transformResponseToForm(copyData as TestStep);
       testStepFormApi.setValues(formData);
       createModalApi.open();
       break;
@@ -239,7 +232,7 @@ function onActionClick({ code, row }: OnActionClickParams<TestStep>) {
     }
     case 'edit': {
       editingStepId.value = row.id;
-      // ⭐ 转换对象为字符串格式
+      // 转换对象为字符串格式
       const formData = transformResponseToForm(row);
       testStepFormApi.setValues(formData);
       editModalApi.open();
@@ -264,33 +257,25 @@ function onActionClick({ code, row }: OnActionClickParams<TestStep>) {
 }
 
 // 转换函数：将后端返回的对象转换为表单需要的字符串格式
-const transformResponseToForm = (data: any) => {
-  const stringify = (value: any) => {
-    if (!value) return '';
-    if (typeof value === 'object') {
-      return JSON.stringify(value, null, 2); // 格式化显示，方便编辑
-    }
-    return value;
-  };
-
+const transformResponseToForm = (data: TestStep) => {
   return {
-    name: data.name,
-    test_case_id: data.test_case_id,
-    url: data.url,
+    auth: stringifyJsonInput(data.auth),
+    body: stringifyJsonInput(data.body),
+    extract: stringifyJsonInput(data.extract),
+    files: stringifyJsonInput(data.files),
+    headers: stringifyJsonInput(data.headers),
     method: data.method,
-    headers: stringify(data.headers),
-    params: stringify(data.params),
-    body: stringify(data.body),
-    files: stringify(data.files),
-    auth: stringify(data.auth),
-    extract: stringify(data.extract),
-    validations: stringify(data.validations),
-    sql_queries: stringify(data.sql_queries),
-    timeout: data.timeout,
+    name: data.name,
+    order: data.order,
+    params: stringifyJsonInput(data.params),
     retry: data.retry,
     retry_interval: data.retry_interval,
-    order: data.order,
+    sql_queries: stringifyJsonInput(data.sql_queries),
     status: data.status,
+    test_case_id: data.test_case_id,
+    timeout: data.timeout,
+    url: data.url,
+    validations: stringifyJsonInput(data.validations),
   };
 };
 
@@ -306,10 +291,10 @@ function handleCreate() {
 
 // 初始化时如果有test_case_id参数，设置到查询表单中
 onMounted(() => {
-  const testCaseId = route.query.test_case_id;
+  const testCaseId = getRouteQueryNumber(route.query.test_case_id);
   if (testCaseId) {
     // 设置查询表单的默认值
-    gridApi.query({ test_case_id: Number(testCaseId) });
+    gridApi.query({ test_case_id: testCaseId });
   }
 });
 </script>

@@ -8,6 +8,7 @@ import type {
 import type {
   ApiProject,
   ApiProjectCreateParams,
+  ApiProjectParams,
   ApiProjectUpdateParams,
 } from '#/plugins/api_testing/api/types';
 
@@ -27,6 +28,7 @@ import {
   getApiProjectListApi,
   updateApiProjectApi,
 } from '#/plugins/api_testing/api/project';
+import { filterEmptyParams } from '#/plugins/api_testing/utils';
 
 import { projectFormSchema, querySchema, useColumns } from './data';
 
@@ -64,20 +66,10 @@ const gridOptions: VxeTableGridOptions<ApiProject> = {
   proxyConfig: {
     ajax: {
       query: async ({ page }, formValues) => {
-        // 过滤掉空字符串和 null
-        // eslint-disable-next-line unicorn/no-array-reduce
-        const filteredParams = Object.entries(formValues).reduce<
-          Record<string, unknown>
-        >((acc, [key, value]) => {
-          if (value !== '' && value !== null && value !== undefined) {
-            acc[key] = value;
-          }
-          return acc;
-        }, {});
         return await getApiProjectListApi({
           page: page.currentPage,
           size: page.pageSize,
-          ...(filteredParams as Record<string, number | string>),
+          ...(filterEmptyParams(formValues) as ApiProjectParams),
         });
       },
     },
@@ -117,12 +109,8 @@ const [CreateModal, createModalApi] = useVbenModal({
       return false;
     }
   },
-  onOpenChange: (isOpen) => {
-    if (isOpen) {
-      projectFormApi.resetForm(); // 打开时重置为空（创建模式）
-    } else {
-      projectFormApi.resetForm(); // 关闭时也重置（可选，防残留）
-    }
+  onOpenChange: () => {
+    projectFormApi.resetForm();
   },
 });
 

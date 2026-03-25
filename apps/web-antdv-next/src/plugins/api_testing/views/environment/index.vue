@@ -8,6 +8,7 @@ import type {
 import type {
   Environment,
   EnvironmentCreateParams,
+  EnvironmentListParams,
   EnvironmentUpdateParams,
 } from '#/plugins/api_testing/api/types';
 
@@ -29,6 +30,13 @@ import {
   setDefaultEnvironmentApi,
   updateEnvironmentApi,
 } from '#/plugins/api_testing/api/environment';
+import { getApiProjectListApi } from '#/plugins/api_testing/api/project';
+import {
+  buildLocalPageResult,
+  filterEmptyParams,
+  parseJsonInput,
+  stringifyJsonInput,
+} from '#/plugins/api_testing/utils';
 
 import { environmentFormSchema, querySchema, useColumns } from './data';
 
@@ -37,6 +45,26 @@ defineOptions({
 });
 
 const router = useRouter();
+
+async function getEnvironmentRows(formValues: Record<string, unknown>) {
+  const params = filterEmptyParams(formValues) as EnvironmentListParams;
+  const [environments, projectResult] = await Promise.all([
+    getEnvironmentListApi(params),
+    getApiProjectListApi({ page: 1, size: 1000 }),
+  ]);
+
+  const projectNameMap = new Map(
+    projectResult.items.map((project) => [project.id, project.name]),
+  );
+
+  return environments.map((environment) => ({
+    ...environment,
+    project_name:
+      environment.project_name ??
+      projectNameMap.get(environment.project_id) ??
+      String(environment.project_id),
+  }));
+}
 
 // 表单配置
 const formOptions: VbenFormProps = {
@@ -68,31 +96,8 @@ const gridOptions: VxeTableGridOptions<Environment> = {
   proxyConfig: {
     ajax: {
       query: async ({ page }, formValues) => {
-        // 1. 过滤掉空字符串、null 和 undefined
-        // eslint-disable-next-line unicorn/no-array-reduce
-        const filteredParams = Object.entries(formValues).reduce<
-          Record<string, unknown>
-        >((acc, [key, value]) => {
-          if (value !== '' && value !== null && value !== undefined) {
-            acc[key] = value;
-          }
-          return acc;
-        }, {});
-
-        // 2. 直接调用接口，将过滤后的参数传给后端
-        // 后端现在支持：{ project_id?, name?, status? }
-        // 即使 filteredParams 为空对象，后端也会返回所有环境列表
-        const data = await getEnvironmentListApi(
-          filteredParams as Record<string, number | string>,
-        );
-
-        // 3. 返回表格数据格式
-        return {
-          items: data,
-          total: data.length,
-          page: page.currentPage,
-          size: page.pageSize,
-        };
+        const data = await getEnvironmentRows(formValues);
+        return buildLocalPageResult(data, page.currentPage, page.pageSize);
       },
     },
   },
@@ -110,29 +115,19 @@ const [EnvironmentForm, environmentFormApi] = useVbenForm({
 const transformFormData = (
   formValues: Record<string, unknown>,
 ): EnvironmentCreateParams | EnvironmentUpdateParams => {
-  const parseJSON = (value: any) => {
-    if (!value || value === '') return undefined;
-    if (typeof value === 'string') {
-      try {
-        return JSON.parse(value);
-      } catch {
-        return undefined;
-      }
-    }
-    return value;
-  };
-
   return {
     ...formValues,
-    variables: parseJSON(formValues.variables),
+    variables: parseJsonInput(formValues.variables) as
+      | EnvironmentCreateParams['variables']
+      | EnvironmentUpdateParams['variables'],
   };
 };
 
 // 转换响应数据为表单格式
-const transformResponseToForm = (data: any) => {
+const transformResponseToForm = (data: Environment) => {
   return {
     ...data,
-    variables: data.variables ? JSON.stringify(data.variables, null, 2) : '',
+    variables: stringifyJsonInput(data.variables),
   };
 };
 
@@ -165,12 +160,8 @@ const [CreateModal, createModalApi] = useVbenModal({
       return false;
     }
   },
-  onOpenChange: (isOpen) => {
-    if (isOpen) {
-      environmentFormApi.resetForm();
-    } else {
-      environmentFormApi.resetForm();
-    }
+  onOpenChange: () => {
+    environmentFormApi.resetForm();
   },
 });
 

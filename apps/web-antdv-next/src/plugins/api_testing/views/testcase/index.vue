@@ -8,6 +8,7 @@ import type {
 import type {
   TestCase,
   TestCaseCreateParams,
+  TestCaseParams,
   TestCaseUpdateParams,
 } from '#/plugins/api_testing/api/types';
 
@@ -29,6 +30,7 @@ import {
   getTestCaseListApi,
   updateTestCaseApi,
 } from '#/plugins/api_testing/api/testcase';
+import { filterEmptyParams } from '#/plugins/api_testing/utils';
 
 import { querySchema, testCaseFormSchema, useColumns } from './data';
 
@@ -71,20 +73,10 @@ const gridOptions: VxeTableGridOptions<TestCase> = {
   proxyConfig: {
     ajax: {
       query: async ({ page }, formValues) => {
-        // 过滤掉空字符串和 null
-        // eslint-disable-next-line unicorn/no-array-reduce
-        const filteredParams = Object.entries(formValues).reduce<
-          Record<string, unknown>
-        >((acc, [key, value]) => {
-          if (value !== '' && value !== null && value !== undefined) {
-            acc[key] = value;
-          }
-          return acc;
-        }, {});
         return await getTestCaseListApi({
           page: page.currentPage,
           size: page.pageSize,
-          ...(filteredParams as Record<string, number | string>),
+          ...(filterEmptyParams(formValues) as TestCaseParams),
         });
       },
     },
@@ -123,12 +115,8 @@ const [CreateModal, createModalApi] = useVbenModal({
       return false;
     }
   },
-  onOpenChange: (isOpen) => {
-    if (isOpen) {
-      testCaseFormApi.resetForm(); // 打开时重置为空（创建模式）
-    } else {
-      testCaseFormApi.resetForm(); // 关闭时也重置（可选，防残留）
-    }
+  onOpenChange: () => {
+    testCaseFormApi.resetForm();
   },
 });
 

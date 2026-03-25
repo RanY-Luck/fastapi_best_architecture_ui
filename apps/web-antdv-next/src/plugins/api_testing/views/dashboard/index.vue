@@ -46,7 +46,22 @@ const formatTime = (time?: string) => {
   });
 };
 
-async function fetchStats() {
+function getLatestTimestamp(item: {
+  create_time?: string;
+  created_time?: string;
+  update_time?: string;
+  updated_time?: string;
+}) {
+  return new Date(
+    item.updated_time ??
+      item.update_time ??
+      item.created_time ??
+      item.create_time ??
+      0,
+  ).getTime();
+}
+
+async function fetchDashboardData() {
   loading.value = true;
   try {
     const [projectsResult, casesResult, reportsResult] = await Promise.all([
@@ -54,6 +69,7 @@ async function fetchStats() {
       getTestCaseListApi(),
       getTestReportListApi(),
     ]);
+
     stats.value.totalProjects = projectsResult.total;
     stats.value.totalTestCases = casesResult.total;
     stats.value.totalReports = reportsResult.total;
@@ -65,41 +81,24 @@ async function fetchStats() {
     } else {
       stats.value.successRate = 0;
     }
-  } catch {
-    message.error('获取统计数据失败');
-  } finally {
-    loading.value = false;
-  }
-}
-
-async function fetchRecentData() {
-  try {
-    const [projectsResult, casesResult, reportsResult] = await Promise.all([
-      getApiProjectListApi(),
-      getTestCaseListApi(),
-      getTestReportListApi(),
-    ]);
 
     recentProjects.value = projectsResult.items
       .filter((item) => item.created_time)
-      .sort(
-        (a, b) =>
-          new Date(b.created_time).getTime() - new Date(a.created_time).getTime(),
-      )
+      .sort((a, b) => getLatestTimestamp(b) - getLatestTimestamp(a))
       .slice(0, 1);
 
     recentTestCases.value = casesResult.items
-      .filter((item) => item.created_time || item.created_time)
-      .sort(
-        (a, b) =>
-          new Date(b.updated_time || b.update_time || b.created_time || b.create_time || 0).getTime() -
-          new Date(a.updated_time || a.update_time || a.created_time || a.create_time || 0).getTime(),
-      )
+      .filter((item) => item.created_time || item.create_time)
+      .sort((a, b) => getLatestTimestamp(b) - getLatestTimestamp(a))
       .slice(0, 1);
 
-    recentReports.value = reportsResult.items.slice(0, 1);
+    recentReports.value = [...reportsResult.items]
+      .sort((a, b) => getLatestTimestamp(b) - getLatestTimestamp(a))
+      .slice(0, 1);
   } catch {
-    message.error('获取最近数据失败');
+    message.error('获取仪表盘数据失败');
+  } finally {
+    loading.value = false;
   }
 }
 
@@ -138,8 +137,7 @@ function goToDetail(type: string, id: number) {
 }
 
 onMounted(() => {
-  fetchStats();
-  fetchRecentData();
+  fetchDashboardData();
 });
 </script>
 

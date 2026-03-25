@@ -10,6 +10,7 @@ import type {
   VariableCreateParams,
   VariableDeleteParams,
   VariableQueryParams,
+  VariableScopeType,
 } from '#/plugins/api_testing/api/types';
 
 import { onMounted, ref } from 'vue';
@@ -28,6 +29,13 @@ import {
   deleteVariableApi,
   getVariableListApi,
 } from '#/plugins/api_testing/api/environment';
+import {
+  buildLocalPageResult,
+  filterEmptyParams,
+  getRouteQueryNumber,
+  parseJsonInputOrRaw,
+  stringifyJsonInput,
+} from '#/plugins/api_testing/utils';
 
 import { querySchema, useColumns, variableFormSchema } from './data';
 
@@ -67,36 +75,15 @@ const gridOptions: VxeTableGridOptions<Variable> = {
   proxyConfig: {
     ajax: {
       query: async ({ page }, formValues) => {
-        // 过滤掉空字符串和 null
-        // eslint-disable-next-line unicorn/no-array-reduce
-        const filteredParams = Object.entries(formValues).reduce<
-          Record<string, unknown>
-        >((acc, [key, value]) => {
-          if (value !== '' && value !== null && value !== undefined) {
-            acc[key] = value;
-          }
-          return acc;
-        }, {});
+        const filteredParams = filterEmptyParams(formValues) as Partial<VariableQueryParams>;
 
         // 必须有 scope 参数
         if (!filteredParams.scope) {
-          return {
-            items: [],
-            total: 0,
-            page: page.currentPage,
-            size: page.pageSize,
-          };
+          return buildLocalPageResult([], page.currentPage, page.pageSize);
         }
 
-        const data = await getVariableListApi(
-          filteredParams as unknown as VariableQueryParams,
-        );
-        return {
-          items: data,
-          total: data.length,
-          page: page.currentPage,
-          size: page.pageSize,
-        };
+        const data = await getVariableListApi(filteredParams as VariableQueryParams);
+        return buildLocalPageResult(data, page.currentPage, page.pageSize);
       },
     },
   },
@@ -114,24 +101,12 @@ const [VariableForm, variableFormApi] = useVbenForm({
 const transformFormData = (
   formValues: Record<string, unknown>,
 ): VariableCreateParams => {
-  const parseValue = (value: unknown) => {
-    if (!value || value === '') return '';
-    if (typeof value === 'string') {
-      try {
-        return JSON.parse(value);
-      } catch {
-        return value; // 如果不是JSON，直接返回字符串
-      }
-    }
-    return value;
-  };
-
-  const data: any = {
-    name: formValues.name,
-    value: parseValue(formValues.value),
-    scope: formValues.scope,
-    description: formValues.description,
-    is_encrypted: formValues.is_encrypted || false,
+  const data: VariableCreateParams = {
+    description: formValues.description as string | undefined,
+    is_encrypted: Boolean(formValues.is_encrypted),
+    name: String(formValues.name ?? ''),
+    scope: formValues.scope as VariableScopeType,
+    value: parseJsonInputOrRaw(formValues.value) ?? '',
   };
 
   // 根据作用域添加相应的ID
@@ -139,13 +114,13 @@ const transformFormData = (
     typeof formValues.scope === 'string' &&
     ['case', 'environment', 'project'].includes(formValues.scope)
   ) {
-    data.project_id = formValues.project_id;
+    data.project_id = formValues.project_id as number | undefined;
   }
   if (formValues.scope === 'environment') {
-    data.environment_id = formValues.environment_id;
+    data.environment_id = formValues.environment_id as number | undefined;
   }
   if (formValues.scope === 'case') {
-    data.case_id = formValues.case_id;
+    data.case_id = formValues.case_id as number | undefined;
   }
 
   return data;
@@ -155,10 +130,7 @@ const transformFormData = (
 const transformResponseToForm = (data: Variable) => {
   return {
     name: data.name,
-    value:
-      typeof data.value === 'object'
-        ? JSON.stringify(data.value, null, 2)
-        : data.value,
+    value: stringifyJsonInput(data.value),
     scope: data.scope,
     project_id: data.project_id,
     environment_id: data.environment_id,
@@ -200,13 +172,13 @@ const [CreateModal, createModalApi] = useVbenModal({
   onOpenChange: (isOpen) => {
     if (isOpen) {
       // 如果从环境管理页面跳转过来，自动填充相关信息
-      const environmentId = route.query.environment_id;
-      const projectId = route.query.project_id;
+      const environmentId = getRouteQueryNumber(route.query.environment_id);
+      const projectId = getRouteQueryNumber(route.query.project_id);
       if (environmentId && projectId) {
         variableFormApi.setValues({
           scope: 'environment',
-          environment_id: Number(environmentId),
-          project_id: Number(projectId),
+          environment_id: environmentId,
+          project_id: projectId,
         });
       } else {
         variableFormApi.resetForm();
@@ -303,14 +275,14 @@ function handleCreate() {
 
 // 初始化时如果有environment_id参数，设置到查询表单中
 onMounted(() => {
-  const environmentId = route.query.environment_id;
-  const projectId = route.query.project_id;
+  const environmentId = getRouteQueryNumber(route.query.environment_id);
+  const projectId = getRouteQueryNumber(route.query.project_id);
   if (environmentId && projectId) {
     // 设置查询表单的默认值
     gridApi.query({
       scope: 'environment',
-      environment_id: Number(environmentId),
-      project_id: Number(projectId),
+      environment_id: environmentId,
+      project_id: projectId,
     });
   }
 });

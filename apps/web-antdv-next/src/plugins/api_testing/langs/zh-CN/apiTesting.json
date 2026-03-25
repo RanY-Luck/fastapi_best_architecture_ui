@@ -1,0 +1,263 @@
+{
+  "menu": "API测试",
+  "common": {
+    "all": "全部",
+    "back": "返回",
+    "copy": "复制",
+    "disabled": "禁用",
+    "emptyDescription": "暂无描述",
+    "enabled": "启用",
+    "formInvalid": "表单校验失败，请检查必填项",
+    "no": "否",
+    "placeholders": {
+      "status": "请选择状态"
+    },
+    "refresh": "刷新",
+    "seconds": "秒",
+    "status": "状态",
+    "yes": "是"
+  },
+  "dashboard": {
+    "title": "测试仪表盘",
+    "heading": "API测试管理",
+    "description": "统一管理 API 测试项目、用例与报告",
+    "empty": {
+      "case": "暂无测试用例",
+      "project": "暂无项目",
+      "report": "暂无测试报告"
+    },
+    "emptyTime": "暂无时间",
+    "message": {
+      "recentError": "获取最近数据失败",
+      "statsError": "获取统计数据失败"
+    },
+    "quick": {
+      "title": "快捷操作",
+      "createCase": "创建用例",
+      "createCaseDesc": "为项目新增测试用例",
+      "createProject": "创建项目",
+      "createProjectDesc": "开始一个新的 API 测试项目",
+      "viewReports": "查看报告",
+      "viewReportsDesc": "查看并分析测试执行结果"
+    },
+    "recent": {
+      "case": "最近测试用例",
+      "project": "最近项目",
+      "report": "最近测试报告",
+      "successRate": "成功率：",
+      "updatedAt": "最近更新时间："
+    },
+    "stats": {
+      "cases": "总测试用例",
+      "projects": "总项目数",
+      "reports": "总测试报告",
+      "successRate": "平均成功率"
+    }
+  },
+  "project": {
+    "title": "项目管理"
+  },
+  "testcase": {
+    "title": "测试用例"
+  },
+  "teststep": {
+    "title": "测试步骤",
+    "actions": {
+      "create": "创建测试步骤",
+      "execute": "执行"
+    },
+    "fields": {
+      "auth": "认证信息",
+      "body": "请求体",
+      "extract": "变量提取",
+      "files": "文件上传",
+      "headers": "请求头",
+      "method": "HTTP方法",
+      "name": "步骤名称",
+      "order": "执行顺序",
+      "params": "查询参数",
+      "retry": "重试次数",
+      "retryInterval": "重试间隔",
+      "sqlQueries": "SQL查询",
+      "testCase": "测试用例",
+      "timeout": "超时时间",
+      "url": "请求URL",
+      "validations": "断言规则"
+    },
+    "message": {
+      "createSuccess": "测试步骤创建成功",
+      "deleteSuccess": "测试步骤删除成功",
+      "executeError": "测试步骤执行失败",
+      "executeSuccess": "测试步骤执行完成",
+      "executing": "正在执行测试步骤...",
+      "jsonError": "JSON 格式错误，请检查输入内容",
+      "updateSuccess": "测试步骤更新成功"
+    },
+    "modal": {
+      "createTitle": "创建测试步骤",
+      "editTitle": "编辑测试步骤"
+    },
+    "placeholders": {
+      "auth": "请输入认证信息(JSON格式)\n例如: {\"type\": \"Bearer\", \"token\": \"xxx\"}",
+      "body": "请输入请求体(JSON格式)",
+      "extract": "请输入变量提取规则(JSON格式)\n例如: {\"user_id\": \"$.data.id\"}",
+      "files": "请输入文件配置(JSON格式)",
+      "headers": "请输入请求头(JSON格式) 例如: {\"Content-Type\": \"application/json\"}",
+      "method": "请选择HTTP方法",
+      "name": "请输入步骤名称",
+      "params": "请输入查询参数(JSON格式)\n例如: {\"page\": 1, \"size\": 10}",
+      "sqlQueries": "请输入SQL查询",
+      "testCase": "请选择测试用例",
+      "url": "请输入请求URL",
+      "validations": "请输入断言规则(JSON格式)\n例如: [{\"field\": \"status_code\", \"operator\": \"eq\", \"expected\": 200}]"
+    },
+    "result": {
+      "errorMessage": "错误信息",
+      "responseData": "响应数据",
+      "responseTime": "响应时间",
+      "statusCode": "状态码",
+      "title": "执行结果"
+    }
+  },
+  "testreport": {
+    "title": "测试报告",
+    "detailTitle": "报告详情"
+  },
+  "report": {
+    "actions": {
+      "detail": "查看详情",
+      "export": "导出报告"
+    },
+    "assertion": {
+      "failed": "失败",
+      "passed": "通过"
+    },
+    "detail": {
+      "basicInfo": "基本信息",
+      "defaultAssertionLabel": "断言检查",
+      "emptyDetails": "暂无执行详情数据",
+      "executionDetails": "执行详情",
+      "notFound": "报告不存在或已被删除",
+      "request": "请求",
+      "requestData": "请求数据",
+      "responseBody": "响应体",
+      "responseData": "响应数据",
+      "responseHeaders": "响应头",
+      "statusCode": "状态码",
+      "summaryDuration": "执行时长",
+      "summaryResult": "执行结果",
+      "summarySuccessRate": "成功率",
+      "summaryTotalSteps": "总步骤数",
+      "assertions": "断言结果"
+    },
+    "exportError": "报告导出失败",
+    "exportLoading": "正在导出报告...",
+    "exportSuccess": "报告导出成功",
+    "fields": {
+      "duration": "执行时长",
+      "endTime": "结束时间",
+      "failSteps": "失败步骤数",
+      "name": "报告名称",
+      "result": "执行结果",
+      "startTime": "开始时间",
+      "successRate": "成功率",
+      "successSteps": "成功步骤数",
+      "testCase": "测试用例",
+      "totalSteps": "总步骤数"
+    },
+    "message": {
+      "deleteSuccess": "测试报告删除成功",
+      "detailError": "获取报告详情失败"
+    },
+    "placeholders": {
+      "endDate": "请选择结束时间",
+      "result": "请选择执行结果",
+      "startDate": "请选择开始时间"
+    },
+    "result": {
+      "failed": "失败",
+      "success": "成功"
+    }
+  },
+  "environment": {
+    "title": "环境管理",
+    "actions": {
+      "create": "创建环境",
+      "setDefault": "设为默认",
+      "variables": "管理变量"
+    },
+    "fields": {
+      "default": "设为默认",
+      "description": "环境描述",
+      "name": "环境名称",
+      "project": "所属项目",
+      "variableCount": "变量数量",
+      "variables": "环境变量"
+    },
+    "message": {
+      "createSuccess": "环境创建成功",
+      "deleteSuccess": "环境删除成功",
+      "jsonError": "JSON 格式错误，请检查变量内容",
+      "setDefaultSuccess": "设置默认环境成功",
+      "updateSuccess": "环境更新成功"
+    },
+    "modal": {
+      "createTitle": "创建环境",
+      "editTitle": "编辑环境"
+    },
+    "placeholders": {
+      "description": "请输入环境描述",
+      "name": "请输入环境名称",
+      "nameDetail": "请输入环境名称，如：开发环境、测试环境",
+      "project": "请选择项目",
+      "variables": "请输入环境变量(JSON格式)\n例如: {\"api_host\": \"https://api.test.com\", \"api_key\": \"xxx\"}"
+    }
+  },
+  "variable": {
+    "title": "变量管理",
+    "actions": {
+      "create": "创建变量"
+    },
+    "fields": {
+      "case": "测试用例",
+      "description": "变量描述",
+      "encrypted": "加密存储",
+      "environment": "环境",
+      "name": "变量名称",
+      "project": "所属项目",
+      "scope": "作用域",
+      "value": "变量值",
+      "valueMode": "变量值模式"
+    },
+    "message": {
+      "createSuccess": "变量创建成功",
+      "deleteSuccess": "变量删除成功",
+      "jsonError": "JSON 格式错误，请检查变量值",
+      "updateSuccess": "变量更新成功"
+    },
+    "modal": {
+      "createTitle": "创建变量",
+      "editTitle": "编辑变量"
+    },
+    "placeholders": {
+      "case": "请选择测试用例",
+      "description": "请输入变量描述",
+      "environment": "请选择环境",
+      "name": "请输入变量名称",
+      "nameDetail": "请输入变量名称，如：api_token",
+      "project": "请选择项目",
+      "scope": "请选择作用域",
+      "value": "请输入变量值；文本模式直接保存原文，JSON 模式要求合法 JSON"
+    },
+    "scope": {
+      "case": "用例变量",
+      "environment": "环境变量",
+      "global": "全局变量",
+      "project": "项目变量"
+    },
+    "valueMode": {
+      "json": "JSON",
+      "text": "文本"
+    }
+  }
+}
