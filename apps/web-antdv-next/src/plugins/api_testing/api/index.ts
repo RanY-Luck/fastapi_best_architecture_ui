@@ -14,6 +14,16 @@ export * from './testcase';
 // 测试报告管理
 export * from './testreport';
 
+// 测试集合管理
+export {
+  createTestSuiteApi,
+  deleteTestSuiteApi,
+  executeTestSuiteApi,
+  getTestSuiteDetailApi,
+  getTestSuiteListApi,
+  updateTestSuiteApi,
+} from './testsuite';
+
 // 测试步骤管理
 export * from './teststep';
 

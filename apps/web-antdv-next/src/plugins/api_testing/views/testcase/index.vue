@@ -215,6 +215,13 @@ function handleCreate() {
           <MaterialSymbolsAdd class="size-5" />
           创建测试用例
         </VbenButton>
+        <VbenButton
+          class="ml-2"
+          variant="outline"
+          @click="router.push({ name: 'ApiTestingTestSuite' })"
+        >
+          测试集合
+        </VbenButton>
       </template>
     </Grid>
 

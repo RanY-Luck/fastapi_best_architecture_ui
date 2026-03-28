@@ -1,4 +1,10 @@
-import type { PageResult, TestReport, TestReportParams } from './types';
+import type {
+  BatchExecutionReport,
+  BatchExecutionReportParams,
+  PageResult,
+  TestReport,
+  TestReportParams,
+} from './types';
 
 /**
  * 测试报告管理相关接口
@@ -19,6 +25,27 @@ export async function getTestReportListApi(params?: TestReportParams) {
  */
 export async function getTestReportDetailApi(id: number) {
   return requestClient.get<TestReport>(`${API_PREFIX}/${id}`);
+}
+
+/**
+ * 获取批量执行报告列表
+ */
+export async function getBatchExecutionReportListApi(
+  params?: BatchExecutionReportParams,
+) {
+  return requestClient.get<PageResult<BatchExecutionReport>>(
+    `${API_PREFIX}/batch`,
+    {
+      params,
+    },
+  );
+}
+
+/**
+ * 获取批量执行报告详情
+ */
+export async function getBatchExecutionReportDetailApi(id: number) {
+  return requestClient.get<BatchExecutionReport>(`${API_PREFIX}/batch/${id}`);
 }
 
 /**

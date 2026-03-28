@@ -217,6 +217,103 @@ export interface TestReportParams extends PageParams {
   test_case_id?: number;
 }
 
+export interface BatchExecutionParams {
+  environment_id?: number | null;
+  max_concurrency: number;
+}
+
+export interface BatchExecutionResultItem {
+  case_id: number;
+  duration?: number;
+  end_time?: string;
+  error?: string;
+  fail_steps?: number;
+  report_id?: number | null;
+  report_name?: string;
+  start_time?: string;
+  success: boolean;
+  success_steps?: number;
+  test_case_name?: string;
+  total_steps?: number;
+}
+
+export interface BatchExecutionResponse {
+  batch_report_id: number;
+  duration: number;
+  end_time: string;
+  fail_cases: number;
+  max_concurrency: number;
+  name: string;
+  project_id: number;
+  report_ids: number[];
+  results: BatchExecutionResultItem[];
+  start_time: string;
+  success: boolean;
+  success_cases: number;
+  suite_id?: number | null;
+  target_id: number;
+  target_type: 'project' | 'suite';
+  total_cases: number;
+}
+
+export interface BatchExecutionReport extends BatchExecutionResponse {
+  created_time: string;
+  details: {
+    report_ids?: number[];
+    results?: BatchExecutionResultItem[];
+    [key: string]: any;
+  };
+  id: number;
+  project_name?: string;
+  suite_name?: string;
+}
+
+export interface BatchExecutionReportParams extends PageParams {
+  end_date?: string;
+  project_id?: number;
+  start_date?: string;
+  success_only?: boolean | string;
+  suite_id?: number;
+  target_type?: 'project' | 'suite';
+}
+
+export interface TestSuite {
+  case_count: number;
+  case_ids: number[];
+  created_time: string;
+  description?: string;
+  id: number;
+  name: string;
+  project_id: number;
+  project_name?: string;
+  status: number;
+  updated_time: string;
+}
+
+export interface TestSuiteCreateParams {
+  case_ids: number[];
+  description?: string;
+  name: string;
+  project_id: number;
+  status?: number;
+}
+
+export interface TestSuiteUpdateParams {
+  case_ids?: number[];
+  description?: string;
+  name?: string;
+  project_id?: number;
+  status?: number;
+}
+
+export interface TestSuiteParams {
+  name?: string;
+  project_id?: number;
+  status?: number;
+  skip?: number;
+  limit?: number;
+}
+
 export enum HttpMethod {
   DELETE = 'DELETE',
   GET = 'GET',

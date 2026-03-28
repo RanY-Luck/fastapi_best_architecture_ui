@@ -1,5 +1,7 @@
 import type {
   ApiProject,
+  BatchExecutionParams,
+  BatchExecutionResponse,
   ApiProjectCreateParams,
   ApiProjectParams,
   ApiProjectUpdateParams,
@@ -58,4 +60,17 @@ export async function getAllEnabledApiProjectsApi() {
   return requestClient.get<ApiProject[]>(`${API_PREFIX}`, {
     params: { status: 1, size: 1000 },
   });
+}
+
+/**
+ * 按项目批量执行
+ */
+export async function executeApiProjectApi(
+  id: number,
+  data: BatchExecutionParams,
+) {
+  return requestClient.post<BatchExecutionResponse>(
+    `${API_PREFIX}/${id}/execute`,
+    data,
+  );
 }

@@ -1,16 +1,43 @@
 import type { VbenFormSchema } from '#/adapter/form';
 import type { OnActionClickFn, VxeGridProps } from '#/adapter/vxe-table';
-import type { ApiProject } from '#/plugins/api_testing/api';
+import type { TestSuite } from '#/plugins/api_testing/api/types';
 
 import { $t } from '#/locales';
-// 查询表单配置
+import { getAllEnabledApiProjectsApi } from '#/plugins/api_testing/api/project';
+
+type SyncCaseFn = (projectId?: number, caseIds?: number[]) => Promise<void>;
+
+let _syncCaseFieldOptions: null | SyncCaseFn = null;
+
+export function registerSyncCaseFn(fn: SyncCaseFn) {
+  _syncCaseFieldOptions = fn;
+}
+
 export const querySchema: VbenFormSchema[] = [
   {
     component: 'Input',
     fieldName: 'name',
-    label: '项目名称',
+    label: '集合名称',
     componentProps: {
-      placeholder: '请输入项目名称',
+      placeholder: '请输入测试集合名称',
+    },
+  },
+  {
+    component: 'ApiSelect',
+    fieldName: 'project_id',
+    label: '所属项目',
+    componentProps: {
+      placeholder: '请选择项目',
+      api: async () => {
+        const data = (await getAllEnabledApiProjectsApi()) as any;
+        if (data && 'items' in data && Array.isArray(data.items)) {
+          return data.items;
+        }
+        return Array.isArray(data) ? data : [];
+      },
+      labelField: 'name',
+      valueField: 'id',
+      immediate: true,
     },
   },
   {
@@ -28,32 +55,55 @@ export const querySchema: VbenFormSchema[] = [
   },
 ];
 
-// 项目表单配置
-export const projectFormSchema: VbenFormSchema[] = [
+export const testSuiteFormSchema: VbenFormSchema[] = [
   {
     component: 'Input',
     fieldName: 'name',
-    label: '项目名称',
+    label: '集合名称',
     rules: 'required',
     componentProps: {
-      placeholder: '请输入项目名称',
+      placeholder: '请输入测试集合名称',
     },
   },
   {
-    component: 'Input',
-    fieldName: 'base_url',
-    label: '基础URL',
+    component: 'ApiSelect',
+    fieldName: 'project_id',
+    label: '所属项目',
     rules: 'required',
     componentProps: {
-      placeholder: '请输入基础URL，如：https://api.example.com',
+      placeholder: '请选择项目',
+      api: async () => {
+        const data = (await getAllEnabledApiProjectsApi()) as any;
+        if (data && 'items' in data && Array.isArray(data.items)) {
+          return data.items;
+        }
+        return Array.isArray(data) ? data : [];
+      },
+      labelField: 'name',
+      valueField: 'id',
+      immediate: true,
+    },
+  },
+  {
+    component: 'Select',
+    fieldName: 'case_ids',
+    label: '关联用例',
+    rules: 'required',
+    defaultValue: [],
+    componentProps: {
+      mode: 'multiple',
+      allowClear: true,
+      maxTagCount: 'responsive',
+      options: [],
+      placeholder: '请先选择项目，再选择测试用例',
     },
   },
   {
     component: 'Textarea',
     fieldName: 'description',
-    label: '项目描述',
+    label: '集合描述',
     componentProps: {
-      placeholder: '请输入项目描述',
+      placeholder: '请输入测试集合描述',
       rows: 3,
     },
   },
@@ -62,6 +112,7 @@ export const projectFormSchema: VbenFormSchema[] = [
     fieldName: 'status',
     label: '状态',
     rules: 'required',
+    defaultValue: 1,
     componentProps: {
       placeholder: '请选择状态',
       options: [
@@ -72,10 +123,9 @@ export const projectFormSchema: VbenFormSchema[] = [
   },
 ];
 
-// 表格列配置
 export function useColumns(
-  onActionClick: OnActionClickFn<ApiProject>,
-): VxeGridProps<ApiProject>['columns'] {
+  onActionClick: OnActionClickFn<TestSuite>,
+): VxeGridProps<TestSuite>['columns'] {
   return [
     {
       type: 'checkbox',
@@ -88,19 +138,24 @@ export function useColumns(
       width: 50,
     },
     {
-      title: '项目名称',
+      title: '集合名称',
       field: 'name',
-      minWidth: 150,
+      minWidth: 180,
     },
     {
-      title: '基础URL',
-      field: 'base_url',
-      minWidth: 200,
+      title: '所属项目',
+      field: 'project_name',
+      minWidth: 160,
+    },
+    {
+      title: '用例数量',
+      field: 'case_count',
+      width: 110,
     },
     {
       title: '描述',
       field: 'description',
-      minWidth: 200,
+      minWidth: 220,
       showOverflow: 'tooltip',
     },
     {
@@ -109,14 +164,6 @@ export function useColumns(
       width: 100,
       cellRender: {
         name: 'CellTag',
-      },
-    },
-    {
-      title: $t('common.table.created_time'),
-      field: 'created_time',
-      width: 180,
-      formatter: ({ cellValue }) => {
-        return cellValue ? new Date(cellValue).toLocaleString() : '';
       },
     },
     {
@@ -139,7 +186,12 @@ export function useColumns(
         name: 'CellOperation',
         options: [
           {
-            code: 'batchExecute',
+            code: 'view-cases',
+            text: '关联用例',
+            icon: 'lucide:list',
+          },
+          {
+            code: 'execute',
             text: '批量执行',
             icon: 'lucide:play',
             color: 'success',
@@ -156,7 +208,7 @@ export function useColumns(
             color: 'error',
             confirm: {
               title: '确认删除',
-              content: '确定要删除这个项目吗？删除后不可恢复。',
+              content: '确定要删除这个测试集合吗？删除后不可恢复。',
             },
           },
         ],

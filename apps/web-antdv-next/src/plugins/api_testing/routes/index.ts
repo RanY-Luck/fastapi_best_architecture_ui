@@ -6,7 +6,7 @@ import { $t } from '#/locales';
 const routes: RouteRecordRaw[] = [
   {
     name: 'ApiTesting',
-    path: '/api-testing',
+    path: '/plugins/api_testing',
     component: BasicLayout,
     meta: {
       icon: 'lucide:test-tube',
@@ -17,7 +17,7 @@ const routes: RouteRecordRaw[] = [
     children: [
       {
         name: 'ApiTestingDashboard',
-        path: 'dashboard',
+        path: '/plugins/api_dashboard',
         component: () =>
           import('#/plugins/api_testing/views/dashboard/index.vue'),
         meta: {
@@ -27,7 +27,7 @@ const routes: RouteRecordRaw[] = [
       },
       {
         name: 'ApiTestingProject',
-        path: 'project',
+        path: '/plugins/project',
         component: () =>
           import('#/plugins/api_testing/views/project/index.vue'),
         meta: {
@@ -37,7 +37,7 @@ const routes: RouteRecordRaw[] = [
       },
       {
         name: 'ApiTestingTestCase',
-        path: 'testcase',
+        path: '/plugins/testcase',
         component: () =>
           import('#/plugins/api_testing/views/testcase/index.vue'),
         meta: {
@@ -47,7 +47,7 @@ const routes: RouteRecordRaw[] = [
       },
       {
         name: 'ApiTestingTestStep',
-        path: 'teststep',
+        path: '/plugins/teststep',
         component: () =>
           import('#/plugins/api_testing/views/teststep/index.vue'),
         meta: {
@@ -56,8 +56,18 @@ const routes: RouteRecordRaw[] = [
         },
       },
       {
+        name: 'ApiTestingTestSuite',
+        path: '/plugins/testsuite',
+        component: () =>
+          import('#/plugins/api_testing/views/testsuite/index.vue'),
+        meta: {
+          icon: 'lucide:layers-3',
+          title: '测试集合',
+        },
+      },
+      {
         name: 'ApiTestingTestReport',
-        path: 'testreport',
+        path: '/plugins/testreport',
         component: () =>
           import('#/plugins/api_testing/views/testreport/index.vue'),
         meta: {
@@ -67,7 +77,7 @@ const routes: RouteRecordRaw[] = [
       },
       {
         name: 'ApiTestingTestReportDetail',
-        path: 'testreport/:id',
+        path: '/plugins/testreportdetail/:id',
         component: () =>
           import('#/plugins/api_testing/views/testreport/detail.vue'),
         meta: {
@@ -76,8 +86,18 @@ const routes: RouteRecordRaw[] = [
         },
       },
       {
+        name: 'ApiTestingBatchReport',
+        path: '/plugins/batch-report',
+        component: () =>
+          import('#/plugins/api_testing/views/batch-report/index.vue'),
+        meta: {
+          icon: 'lucide:panel-right-open',
+          title: '批量执行报告',
+        },
+      },
+      {
         name: 'ApiTestingEnvironment',
-        path: 'environment',
+        path: '/plugins/environment',
         component: () =>
           import('#/plugins/api_testing/views/environment/index.vue'),
         meta: {
@@ -87,7 +107,7 @@ const routes: RouteRecordRaw[] = [
       },
       {
         name: 'ApiTestingVariable',
-        path: 'variable',
+        path: '/plugins/variable',
         component: () =>
           import('#/plugins/api_testing/views/variable/index.vue'),
         meta: {

@@ -56,7 +56,7 @@ export async function deleteTestCaseApi(id: number) {
  */
 export async function getTestCasesByProjectApi(projectId: number) {
   return requestClient.get<TestCase[]>(`${API_PREFIX}`, {
-    params: { project_id: projectId, status: 1, size: 1000 },
+    params: { project_id: projectId, status: 1, limit: 1000 },
   });
 }
 

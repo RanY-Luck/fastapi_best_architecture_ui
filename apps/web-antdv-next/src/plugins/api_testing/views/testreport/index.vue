@@ -13,7 +13,7 @@ import type {
 import { onMounted } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 
-import { Page } from '@vben/common-ui';
+import { Page, VbenButton } from '@vben/common-ui';
 
 import { message } from 'antdv-next';
 
@@ -148,6 +148,15 @@ onMounted(() => {
 
 <template>
   <Page auto-content-height>
-    <Grid />
+    <Grid>
+      <template #toolbar-actions>
+        <VbenButton
+          variant="outline"
+          @click="router.push({ name: 'ApiTestingBatchReport' })"
+        >
+          查看批量执行报告
+        </VbenButton>
+      </template>
+    </Grid>
   </Page>
 </template>

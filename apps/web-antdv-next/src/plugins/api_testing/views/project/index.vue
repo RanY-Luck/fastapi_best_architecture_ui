@@ -13,6 +13,7 @@ import type {
 } from '#/plugins/api_testing/api/types';
 
 import { ref } from 'vue';
+import { useRouter } from 'vue-router';
 
 import { Page, useVbenModal, VbenButton } from '@vben/common-ui';
 import { MaterialSymbolsAdd } from '@vben/icons';
@@ -25,6 +26,7 @@ import { $t } from '#/locales';
 import {
   createApiProjectApi,
   deleteApiProjectApi,
+  executeApiProjectApi,
   getApiProjectListApi,
   updateApiProjectApi,
 } from '#/plugins/api_testing/api/project';
@@ -35,6 +37,9 @@ import { projectFormSchema, querySchema, useColumns } from './data';
 defineOptions({
   name: 'ApiTestingProject',
 });
+
+const DEFAULT_BATCH_MAX_CONCURRENCY = 3;
+const router = useRouter();
 
 // 表单配置
 const formOptions: VbenFormProps = {
@@ -160,6 +165,30 @@ function onActionClick({ code, row }: OnActionClickParams<ApiProject>) {
       editingProjectId.value = row.id;
       projectFormApi.setValues(row);
       editModalApi.open();
+      break;
+    }
+    case 'batchExecute': {
+      message.loading('正在批量执行项目用例...', 0);
+      executeApiProjectApi(row.id, {
+        max_concurrency: DEFAULT_BATCH_MAX_CONCURRENCY,
+      })
+        .then((result) => {
+          message.destroy();
+          message.success('项目批量执行完成');
+          router.push({
+            name: 'ApiTestingBatchReport',
+            query: {
+              project_id: String(row.id),
+              report_id: String(result.batch_report_id),
+              target_type: 'project',
+            },
+          });
+        })
+        .catch((error) => {
+          console.error('项目批量执行失败:', error);
+          message.destroy();
+          message.error('项目批量执行失败');
+        });
       break;
     }
   }
