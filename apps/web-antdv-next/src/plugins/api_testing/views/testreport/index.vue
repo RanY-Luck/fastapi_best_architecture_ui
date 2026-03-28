@@ -10,7 +10,7 @@ import type {
   TestReportParams,
 } from '#/plugins/api_testing/api/types';
 
-import { onMounted } from 'vue';
+import { onActivated, onMounted } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 
 import { Page, VbenButton } from '@vben/common-ui';
@@ -136,13 +136,18 @@ function onRefresh() {
   gridApi.query();
 }
 
-// 初始化时如果有test_case_id参数，设置到查询表单中
-onMounted(() => {
+function loadReports() {
   const testCaseId = getRouteQueryNumber(route.query.test_case_id);
-  if (testCaseId) {
-    // 设置查询表单的默认值
-    gridApi.query({ test_case_id: testCaseId });
-  }
+  gridApi.query(testCaseId ? { test_case_id: testCaseId } : {});
+}
+
+// 页面首次进入时自动加载，且在 keep-alive 激活后重新加载
+onMounted(() => {
+  loadReports();
+});
+
+onActivated(() => {
+  loadReports();
 });
 </script>
 
