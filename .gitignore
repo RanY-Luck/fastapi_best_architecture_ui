@@ -60,6 +60,7 @@ web-ele
 web-naive
 web-tdesign
 docs
+.worktrees
 playground
 scripts/deploy/build-local-docker-image.sh
 scripts/deploy/Dockerfile
