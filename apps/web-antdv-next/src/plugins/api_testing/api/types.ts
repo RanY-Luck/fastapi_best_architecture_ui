@@ -18,6 +18,43 @@ export interface PageResult<T> {
   total_pages?: number;
 }
 
+export type SqlTaskStatus = 'failed' | 'pending' | 'running' | 'success';
+
+export interface SqlExecutionRequest {
+  db_config?: Record<string, unknown> | null;
+  extract?: Record<string, string> | null;
+  name: string;
+  query: string;
+  use_default_db?: boolean;
+  validations?: Array<Record<string, unknown>> | null;
+}
+
+export interface SqlExecutionResult {
+  affected_rows?: number | null;
+  data?: Array<Record<string, unknown>> | null;
+  error?: null | string;
+  extracted_variables?: null | Record<string, unknown>;
+  name: string;
+  query: string;
+  success: boolean;
+  validation_results?: Array<Record<string, unknown>> | null;
+}
+
+export interface SqlTaskSubmitResponse {
+  celery_task_id?: null | string;
+  name: string;
+  status: SqlTaskStatus;
+  task_id: string;
+}
+
+export interface SqlTaskStatusResponse extends SqlTaskSubmitResponse {
+  duration?: null | number;
+  end_time?: null | string;
+  error?: null | string;
+  result?: null | SqlExecutionResult;
+  start_time?: null | string;
+}
+
 export interface ApiProject {
   base_url: string;
   created_time: string;

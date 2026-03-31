@@ -56,6 +56,16 @@ const routes: RouteRecordRaw[] = [
         },
       },
       {
+        name: 'ApiTestingSql',
+        path: '/plugins/sql',
+        component: () =>
+          import('#/plugins/api_testing/views/sql/index.vue'),
+        meta: {
+          icon: 'lucide:database-zap',
+          title: $t('apiTesting.sql.title'),
+        },
+      },
+      {
         name: 'ApiTestingTestSuite',
         path: '/plugins/testsuite',
         component: () =>
