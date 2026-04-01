@@ -57,6 +57,9 @@
   "project": {
     "title": "项目管理"
   },
+  "sql": {
+    "title": "SQL执行"
+  },
   "testcase": {
     "title": "测试用例"
   },

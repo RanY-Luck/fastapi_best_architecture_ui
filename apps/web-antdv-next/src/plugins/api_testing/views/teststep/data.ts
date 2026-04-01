@@ -4,9 +4,8 @@ import type { TestStep } from '#/plugins/api_testing/api/types';
 
 import { $t } from '#/locales';
 import { getAllEnabledTestCasesApi } from '#/plugins/api_testing/api';
-import { CodeMirror } from '#/plugins/api_testing/components/CodeMirror';
+import { StructuredJsonEditor } from '#/plugins/api_testing/components/StructuredJsonEditor';
 
-// HTTP方法选项
 export const httpMethodOptions = [
   { label: 'GET', value: 'GET' },
   { label: 'POST', value: 'POST' },
@@ -17,7 +16,6 @@ export const httpMethodOptions = [
   { label: 'OPTIONS', value: 'OPTIONS' },
 ];
 
-// 查询表单配置
 export const querySchema: VbenFormSchema[] = [
   {
     component: 'Input',
@@ -69,7 +67,16 @@ export const querySchema: VbenFormSchema[] = [
   },
 ];
 
-// 测试步骤表单配置
+const buildStructuredEditor = (editorType: string, placeholder: string): VbenFormSchema => ({
+  component: StructuredJsonEditor,
+  fieldName: '',
+  label: '',
+  componentProps: {
+    editorType,
+    placeholder,
+  },
+});
+
 export const testStepFormSchema: VbenFormSchema[] = [
   {
     component: 'Input',
@@ -112,103 +119,52 @@ export const testStepFormSchema: VbenFormSchema[] = [
     },
   },
   {
-    component: CodeMirror,
+    ...buildStructuredEditor('headers', '请输入请求头(JSON格式) 例如: {"Content-Type": "application/json"}'),
     fieldName: 'headers',
     label: '请求头',
-    componentProps: {
-      placeholder:
-        '请输入请求头(JSON格式) 例如: {"Content-Type": "application/json"}',
-      language: 'json',
-      height: 200, // 可以调整高度
-      theme: 'light', // 或 'dark'
-      tabSize: 2,
-    },
   },
   {
-    component: CodeMirror,
+    ...buildStructuredEditor('params', '请输入查询参数(JSON格式)\n例如: {"page": 1, "size": 10}'),
     fieldName: 'params',
     label: '查询参数',
-    componentProps: {
-      placeholder: '请输入查询参数(JSON格式)\n例如: {"page": 1, "size": 10}',
-      language: 'json',
-      height: 200, // 可以调整高度
-      theme: 'light', // 或 'dark'
-      tabSize: 2,
-    },
   },
   {
-    component: CodeMirror,
+    ...buildStructuredEditor('body', '请输入请求体(JSON格式)'),
     fieldName: 'body',
     label: '请求体',
-    componentProps: {
-      placeholder: '请输入请求体(JSON格式)',
-      language: 'json',
-      height: 200, // 可以调整高度
-      theme: 'light', // 或 'dark'
-      tabSize: 2,
-    },
   },
   {
-    component: CodeMirror,
+    ...buildStructuredEditor('files', '请输入文件配置(JSON格式)'),
     fieldName: 'files',
     label: '文件上传',
-    componentProps: {
-      placeholder: '请输入文件配置(JSON格式)',
-      language: 'json',
-      height: 200, // 可以调整高度
-      theme: 'light', // 或 'dark'
-      tabSize: 2,
-    },
   },
   {
-    component: CodeMirror,
+    ...buildStructuredEditor('auth', '请输入认证信息(JSON格式)\n例如: {"type": "Bearer", "token": "xxx"}'),
     fieldName: 'auth',
     label: '认证信息',
-    componentProps: {
-      placeholder:
-        '请输入认证信息(JSON格式)\n例如: {"type": "Bearer", "token": "xxx"}',
-      language: 'json',
-      height: 200, // 可以调整高度
-      theme: 'light', // 或 'dark'
-      tabSize: 2,
-    },
   },
   {
-    component: CodeMirror,
+    ...buildStructuredEditor('extract', '请输入变量提取规则(JSON格式)\n例如: {"user_id": "$.data.id"}'),
     fieldName: 'extract',
     label: '变量提取',
-    componentProps: {
-      placeholder:
-        '请输入变量提取规则(JSON格式)\n例如: {"user_id": "$.data.id"}',
-      language: 'json',
-      height: 200, // 可以调整高度
-      theme: 'light', // 或 'dark'
-      tabSize: 2,
-    },
   },
   {
-    component: CodeMirror,
+    component: StructuredJsonEditor,
     fieldName: 'validations',
     label: '断言规则',
     componentProps: {
+      editorType: 'validation',
       placeholder:
         '请输入断言规则(JSON格式)\n例如: [{"field": "status_code", "operator": "eq", "expected": 200}]',
-      language: 'json',
-      height: 200, // 可以调整高度
-      theme: 'light', // 或 'dark'
-      tabSize: 2,
     },
   },
   {
-    component: CodeMirror,
+    component: StructuredJsonEditor,
     fieldName: 'sql_queries',
     label: 'SQL查询',
     componentProps: {
+      editorType: 'sql',
       placeholder: '请输入SQL查询',
-      language: 'sql',
-      height: 200, // 可以调整高度
-      theme: 'light', // 或 'dark'
-      tabSize: 2,
     },
   },
   {
@@ -266,7 +222,6 @@ export const testStepFormSchema: VbenFormSchema[] = [
   },
 ];
 
-// 表格列配置
 export function useColumns(
   onActionClick: OnActionClickFn<TestStep>,
 ): VxeGridProps<TestStep>['columns'] {

@@ -8,6 +8,9 @@ export * from './environment';
 // 项目管理
 export * from './project';
 
+// SQL执行
+export * from './sql';
+
 // 测试用例管理
 export * from './testcase';
 
