@@ -86,6 +86,16 @@ const routes: RouteRecordRaw[] = [
         },
       },
       {
+        name: 'ApiTestingExecutionStream',
+        path: '/plugins/testcase-execution-stream',
+        component: () =>
+          import('#/plugins/api_testing/views/testcase-execution-stream/index.vue'),
+        meta: {
+          hideInMenu: true,
+          title: '运行日志',
+        },
+      },
+      {
         name: 'ApiTestingBatchReport',
         path: '/plugins/batch-report',
         component: () =>
