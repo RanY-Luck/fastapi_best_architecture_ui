@@ -26,7 +26,6 @@ import { $t } from '#/locales';
 import {
   createTestCaseApi,
   deleteTestCaseApi,
-  executeTestCaseApi,
   getTestCaseListApi,
   updateTestCaseApi,
 } from '#/plugins/api_testing/api/testcase';
@@ -168,21 +167,10 @@ function onActionClick({ code, row }: OnActionClickParams<TestCase>) {
       break;
     }
     case 'execute': {
-      message.loading('正在执行测试用例...', 0);
-      executeTestCaseApi(row.id)
-        .then(() => {
-          message.destroy();
-          message.success('测试用例执行完成');
-          // 可以跳转到报告页面查看结果
-          router.push({
-            name: 'ApiTestingTestReport',
-            query: { test_case_id: row.id },
-          });
-        })
-        .catch(() => {
-          message.destroy();
-          message.error('测试用例执行失败');
-        });
+      router.push({
+        name: 'ApiTestingExecutionStream',
+        query: { case_id: row.id },
+      });
       break;
     }
     case 'steps': {

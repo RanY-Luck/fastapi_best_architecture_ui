@@ -277,6 +277,35 @@ export interface BatchExecutionReportParams extends PageParams {
   target_type?: 'project' | 'suite';
 }
 
+export type TestCaseStreamEventType =
+  | 'error'
+  | 'run_end'
+  | 'run_start'
+  | 'step_assertion'
+  | 'step_end'
+  | 'step_extract'
+  | 'step_request'
+  | 'step_response'
+  | 'step_sql'
+  | 'step_start';
+
+export interface TestCaseStreamEvent {
+  case_id?: number;
+  duration?: number;
+  environment_id?: null | number;
+  error_type?: string;
+  message?: string;
+  report_id?: number;
+  report_name?: string;
+  step_name?: string;
+  step_order?: number;
+  success?: boolean;
+  timestamp?: string;
+  total_steps?: number;
+  type: TestCaseStreamEventType;
+  [key: string]: unknown;
+}
+
 export interface TestSuite {
   case_count: number;
   case_ids: number[];
