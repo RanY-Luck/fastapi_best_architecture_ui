@@ -241,7 +241,7 @@ async function viewSuiteCases(row: TestSuite) {
               width: 80,
               customRender: ({ text }: any) => (text === 1 ? '启用' : '禁用'),
             },
-          ],
+          ] as any,
         }),
     });
   } catch (error) {

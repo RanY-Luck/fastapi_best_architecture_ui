@@ -5,14 +5,6 @@ import type { TestSuite } from '#/plugins/api_testing/api/types';
 import { $t } from '#/locales';
 import { getAllEnabledApiProjectsApi } from '#/plugins/api_testing/api/project';
 
-type SyncCaseFn = (projectId?: number, caseIds?: number[]) => Promise<void>;
-
-let _syncCaseFieldOptions: null | SyncCaseFn = null;
-
-export function registerSyncCaseFn(fn: SyncCaseFn) {
-  _syncCaseFieldOptions = fn;
-}
-
 export const querySchema: VbenFormSchema[] = [
   {
     component: 'Input',

@@ -372,7 +372,7 @@ export interface TestSuiteUpdateParams {
   status?: number;
 }
 
-export interface TestSuiteParams {
+export interface TestSuiteParams extends PageParams {
   name?: string;
   project_id?: number;
   status?: number;

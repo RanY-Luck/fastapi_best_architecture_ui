@@ -1,7 +1,7 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
 
 const accessStoreMock = vi.hoisted(() => ({
-  accessToken: 'token',
+  accessToken: 'token' as null | string,
   accessSessionUuid: null as null | string,
   setAccessSessionUuid: vi.fn((sessionUuid: null | string) => {
     accessStoreMock.accessSessionUuid = sessionUuid;
